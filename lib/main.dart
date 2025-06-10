@@ -1,10 +1,17 @@
+import 'package:catalog_app/features/categroy/presentation/screen/categories_screen.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:catalog_app/di/injection_container.dart';
+import 'package:flutter/foundation.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Required if you need to call native code before runApp
-  await initDependencies(); // Initialize GetIt and register dependencies
-  runApp(const MyApp());
+import 'features/homepage/presentation/screen/home_page.dart';
+
+void main() {
+  runApp(
+    DevicePreview(
+      enabled: !kReleaseMode, // Enable only in debug mode
+      builder: (context) => const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -13,60 +20,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Catalog App',
+      useInheritedMediaQuery: true, // Required for device_preview
+      locale: DevicePreview.locale(context), // Required for device_preview
+      builder: DevicePreview.appBuilder, // Required for device_preview
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFFFC1D4)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: HomePage(),
     );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text(
-                'You have pushed the button this many times:',
-              ),
-              Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _incrementCounter,
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
-        )
-      );
   }
 }
