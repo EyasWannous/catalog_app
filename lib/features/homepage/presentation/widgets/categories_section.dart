@@ -1,11 +1,13 @@
+import 'package:catalog_app/core/route/app_routes.dart';
+import 'package:catalog_app/features/categroy/domain/entities/category.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/utils/responsive_utils.dart';
 
 class CategoriesSection extends StatelessWidget {
-  final List<Map<String, String>> categories;
+  final List<Category> categories;
 
-  const CategoriesSection({Key? key, required this.categories})
-    : super(key: key);
+  const CategoriesSection({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +15,9 @@ class CategoriesSection extends StatelessWidget {
       height: ResponsiveUtils.getResponsiveSpacing(context, 100),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: categories.length * 2,
+        itemCount: (categories.length / 2).toInt(),
         itemBuilder: (context, index) {
-          var item = categories[index % categories.length];
-          return _buildCategoryItem(context, item);
+          return _buildCategoryItem(context, categories[index]);
         },
         separatorBuilder:
             (context, index) => SizedBox(
@@ -26,17 +27,28 @@ class CategoriesSection extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryItem(BuildContext context, Map<String, String> item) {
+  Widget _buildCategoryItem(BuildContext context, Category item) {
     return Column(
       children: [
-        CircleAvatar(
-          backgroundColor: Color(0xFFFFE4EC),
-          radius: ResponsiveUtils.getResponsiveIconSize(context, 28),
-          backgroundImage: NetworkImage(item['icon']!),
+        InkWell(
+          onTap: () {
+            context.push(
+              AppRoutes.product,
+              extra: {
+                'categoryName': item.name,
+                "categoryId": item.id.toString(),
+              },
+            );
+          },
+          child: CircleAvatar(
+            backgroundColor: Color(0xFFFFE4EC),
+            radius: ResponsiveUtils.getResponsiveIconSize(context, 28),
+            // backgroundImage: NetworkImage(item['icon']!),
+          ),
         ),
         SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 4)),
         Text(
-          item['label']!,
+          item.name,
           style: TextStyle(
             fontSize: 12 * ResponsiveUtils.getFontSizeMultiplier(context),
           ),

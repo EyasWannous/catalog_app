@@ -136,14 +136,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize {
+    // Use a larger height for tablets to prevent overflow
     if (showSearch) {
-      return Size.fromHeight(160);
+      return Size.fromHeight(160); // Increased for large tablets
     } else {
       return Size.fromHeight(80);
     }
   }
 }
 
+// Extension to make it easier to get responsive app bar height
 extension CustomAppBarExtension on CustomAppBar {
   static double getAppBarHeight(
     BuildContext context, {

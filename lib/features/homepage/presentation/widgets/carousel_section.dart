@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart' as carousel;
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../cubit/homepage_cubit.dart';
@@ -55,31 +54,33 @@ class _CarouselSectionState extends State<CarouselSection> {
                     context.read<HomepageCubit>().updateCarouselIndex(index);
                   },
                 ),
-                items: widget.offers.map((img) {
-                  return Builder(
-                    builder: (context) => Container(
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          ResponsiveUtils.getResponsiveBorderRadius(
-                            context,
-                            12,
-                          ),
-                        ),
-                        color: Colors.grey[200],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          ResponsiveUtils.getResponsiveBorderRadius(
-                            context,
-                            12,
-                          ),
-                        ),
-                        child: Image.network(img, fit: BoxFit.cover),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                items:
+                    widget.offers.map((img) {
+                      return Builder(
+                        builder:
+                            (context) => Container(
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveUtils.getResponsiveBorderRadius(
+                                    context,
+                                    12,
+                                  ),
+                                ),
+                                color: Colors.grey[200],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveUtils.getResponsiveBorderRadius(
+                                    context,
+                                    12,
+                                  ),
+                                ),
+                                child: Image.network(img, fit: BoxFit.cover),
+                              ),
+                            ),
+                      );
+                    }).toList(),
               ),
               _buildNavigationButton(
                 isLeft: true,
@@ -105,33 +106,37 @@ class _CarouselSectionState extends State<CarouselSection> {
         SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 12)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: widget.offers.asMap().entries.map((entry) {
-            return GestureDetector(
-              onTap: () => _carouselController.animateToPage(
-                entry.key,
-                duration: Duration(milliseconds: 300),
-                curve: Curves.linear,
-              ),
-              child: Container(
-                width: widget.currentIndex == entry.key
-                    ? ResponsiveUtils.getResponsiveSpacing(context, 24)
-                    : ResponsiveUtils.getResponsiveSpacing(context, 8),
-                height: ResponsiveUtils.getResponsiveSpacing(context, 8),
-                margin: EdgeInsets.symmetric(
-                  horizontal: ResponsiveUtils.getResponsiveSpacing(
-                    context,
-                    4,
+          children:
+              widget.offers.asMap().entries.map((entry) {
+                return GestureDetector(
+                  onTap:
+                      () => _carouselController.animateToPage(
+                        entry.key,
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.linear,
+                      ),
+                  child: Container(
+                    width:
+                        widget.currentIndex == entry.key
+                            ? ResponsiveUtils.getResponsiveSpacing(context, 24)
+                            : ResponsiveUtils.getResponsiveSpacing(context, 8),
+                    height: ResponsiveUtils.getResponsiveSpacing(context, 8),
+                    margin: EdgeInsets.symmetric(
+                      horizontal: ResponsiveUtils.getResponsiveSpacing(
+                        context,
+                        4,
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color:
+                          widget.currentIndex == entry.key
+                              ? Color(0xFFFFC1D4)
+                              : Colors.grey[300],
+                    ),
                   ),
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: widget.currentIndex == entry.key
-                      ? Color(0xFFFFC1D4)
-                      : Colors.grey[300],
-                ),
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
         ),
       ],
     );

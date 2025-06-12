@@ -41,6 +41,7 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Product Image
             Expanded(
               flex: 3,
               child: Container(
@@ -103,6 +104,7 @@ class ProductCard extends StatelessWidget {
               ),
             ),
 
+            // Product Details
             Expanded(
               flex: 3,
               child: Container(
@@ -125,6 +127,7 @@ class ProductCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Product Title
                     Text(
                       title ?? "Product name here lorem ip...",
                       style: TextStyle(
@@ -137,6 +140,7 @@ class ProductCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
 
+                    // Product Description (if enabled)
                     if (showDescription) ...[
 
                       Text(
@@ -149,6 +153,21 @@ class ProductCard extends StatelessWidget {
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+
+                    // Product Price (if enabled)
+                    if (showPrice && price != null) ...[
+
+                      Text(
+                        price!,
+                        style: TextStyle(
+                          fontSize:
+                              16 *
+                              ResponsiveUtils.getFontSizeMultiplier(context),
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFFFC1D4),
+                        ),
                       ),
                     ],
                   ],

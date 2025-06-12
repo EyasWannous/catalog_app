@@ -1,14 +1,18 @@
+import 'package:catalog_app/core/route/app_routes.dart';
+import 'package:catalog_app/features/categroy/domain/entities/category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../cubit/categories_cubit.dart';
 
 class CategoryCard extends StatelessWidget {
-  final Map<String, dynamic> category;
+  final Category category;
   final int index;
 
   const CategoryCard({Key? key, required this.category, required this.index})
     : super(key: key);
+
 
   double _getCardHeight(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -24,7 +28,15 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasProducts = category['hasProducts'] ?? true;
+    final List<Color> categoryColors = [
+      Color(0xFF9ED9D5), // New products
+      Color(0xFFFEC78F), // Body lotions
+      Color(0xFFFFE38F), // Skin care
+      Color(0xFFFDB9A7), // Shampoo
+      Color(0xFFE7DDCB), // Perfumes
+      Color(0xFFAED6C1), // Make-up
+    ];
+    final i= index % categoryColors.length;
 
     return Container(
       margin: EdgeInsets.only(
@@ -32,7 +44,7 @@ class CategoryCard extends StatelessWidget {
       ),
       height: _getCardHeight(context),
       decoration: BoxDecoration(
-        color: category['color'],
+        color: categoryColors[i],
         borderRadius: BorderRadius.circular(
           ResponsiveUtils.getResponsiveBorderRadius(context, 20),
         ),
@@ -49,7 +61,7 @@ class CategoryCard extends StatelessWidget {
           ResponsiveUtils.getResponsiveBorderRadius(context, 20),
         ),
         onTap: () {
-          context.read<CategoriesCubit>().onCategoryTap(category);
+          context.push(AppRoutes.product, extra: {'categoryId': category.id.toString(), 'categoryName': category.name});
         },
         child: Padding(
           padding: EdgeInsets.symmetric(
@@ -69,7 +81,7 @@ class CategoryCard extends StatelessWidget {
               Expanded(flex: 2, child: _buildTextContent(context)),
               Expanded(
                 flex: 2,
-                child: _buildImageSection(context, hasProducts),
+                child: _buildImageSection(context),
               ),
             ],
           ),
@@ -84,7 +96,7 @@ class CategoryCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          category['title'],
+          category.name,
           style: TextStyle(
             fontSize:
                 ResponsiveUtils.isTablet(context) ||
@@ -103,29 +115,29 @@ class CategoryCard extends StatelessWidget {
           ),
         ),
         SizedBox(height: 4),
-        Text(
-          category['subtitle'],
-          style: TextStyle(
-            fontSize:
-                ResponsiveUtils.isTablet(context) ||
-                        ResponsiveUtils.isDesktop(context)
-                    ? 16 * ResponsiveUtils.getFontSizeMultiplier(context)
-                    : 14 * ResponsiveUtils.getFontSizeMultiplier(context),
-            color: Colors.white.withOpacity(0.9),
-            shadows: [
-              Shadow(
-                color: Colors.black.withOpacity(0.3),
-                offset: Offset(1, 1),
-                blurRadius: 2,
-              ),
-            ],
-          ),
-        ),
+        // Text(
+        //   category,
+        //   style: TextStyle(
+        //     fontSize:
+        //         ResponsiveUtils.isTablet(context) ||
+        //                 ResponsiveUtils.isDesktop(context)
+        //             ? 16 * ResponsiveUtils.getFontSizeMultiplier(context)
+        //             : 14 * ResponsiveUtils.getFontSizeMultiplier(context),
+        //     color: Colors.white.withOpacity(0.9),
+        //     shadows: [
+        //       Shadow(
+        //         color: Colors.black.withOpacity(0.3),
+        //         offset: Offset(1, 1),
+        //         blurRadius: 2,
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ],
     );
   }
 
-  Widget _buildImageSection(BuildContext context, bool hasProducts) {
+  Widget _buildImageSection(BuildContext context, {bool hasProducts=false}) {
     return Stack(
       children: [
         // Main image
@@ -161,7 +173,7 @@ class CategoryCard extends StatelessWidget {
 
   Widget _buildProductImage(BuildContext context) {
     return Image.network(
-      category['imageUrl'],
+      category.name,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return Container(

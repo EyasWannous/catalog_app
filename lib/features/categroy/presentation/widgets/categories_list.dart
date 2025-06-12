@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/responsive_utils.dart';
+import '../../domain/entities/category.dart';
 import 'category_card.dart';
 
 class CategoriesList extends StatelessWidget {
-  final List<Map<String, dynamic>> categories;
+  final List<Category> categories;
+  final ScrollController scrollController;
+  final bool isLoadingMore;
 
-  const CategoriesList({Key? key, required this.categories}) : super(key: key);
+
+   const CategoriesList({
+    super.key,
+    required this.categories,
+    required this.scrollController,
+    this.isLoadingMore = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,14 +23,22 @@ class CategoriesList extends StatelessWidget {
         maxWidth: ResponsiveUtils.getMaxContentWidth(context),
       ),
       child: ListView.builder(
+        controller: scrollController,
         padding: ResponsiveUtils.getResponsivePadding(context).copyWith(
           top: ResponsiveUtils.getResponsiveSpacing(context, 16),
           bottom: ResponsiveUtils.getResponsiveSpacing(context, 16),
         ),
-        itemCount: categories.length,
+        itemCount: categories.length + (isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
-          final category = categories[index];
-          return CategoryCard(category: category, index: index);
+          if (index < categories.length) {
+            final category = categories[index];
+            return CategoryCard(category: category, index: index);
+          } else {
+            return const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
         },
       ),
     );
