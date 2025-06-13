@@ -4,8 +4,20 @@ import 'package:catalog_app/features/products/data/model/product_model.dart';
 import 'package:catalog_app/features/products/data/model/product_response_model.dart';
 
 abstract class ProductRemoteDataSource {
-  Future<ProductResponseModel> getProducts(String categoryId);
+  Future<ProductResponseModel> getProducts(
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+  });
   Future<ProductModel> getProduct(int id);
+
+  Future<ProductResponseModel> searchProducts(
+    String categoryId,
+    String searchQuery, {
+    int? pageNumber,
+    int? pageSize,
+  });
+
   Future<ProductModel> postProduct(
     String name,
     String description,
@@ -26,9 +38,20 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
   ProductRemoteDataSourceImpl(this.apiService);
 
   @override
-  Future<ProductResponseModel> getProducts(String categoryId) async {
+  Future<ProductResponseModel> getProducts(
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
     try {
-      final response = await apiService.get('/Categories/$categoryId/products');
+      final response = await apiService.get(
+        '/Categories/$categoryId/products',
+        queryParameters: {
+          'pageNumber': pageNumber ?? 1,
+          'pageSize': pageSize ?? 10,
+        },
+      );
+
       print(response.toString());
       return ProductResponseModel.fromJson(response.data);
     } catch (e) {
@@ -49,7 +72,7 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
       throw ServerException();
     }
   }
-  
+
   @override
   Future<ProductModel> postProduct(
     String name,
@@ -115,4 +138,28 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
     }
   }
 
+  @override
+  Future<ProductResponseModel> searchProducts(
+    String categoryId,
+    String searchQuery, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    try {
+      final response = await apiService.get(
+        '/Categories/$categoryId/products',
+        queryParameters: {
+          'pageNumber': pageNumber ?? 1,
+          'pageSize': pageSize ?? 10,
+          'searchQuery': searchQuery,
+        },
+      );
+
+      print(response.toString());
+      return ProductResponseModel.fromJson(response.data);
+    } catch (e) {
+      print(e.toString());
+      throw ServerException();
+    }
+  }
 }

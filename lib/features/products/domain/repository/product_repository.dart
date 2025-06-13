@@ -4,7 +4,19 @@ import 'package:catalog_app/features/products/domain/entities/products_response.
 import 'package:dartz/dartz.dart';
 
 abstract class ProductRepository {
-  Future<Either<Failure, ProductsResponse>> getProducts(String categoryId);
+  Future<Either<Failure, ProductsResponse>> getProducts(
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+  });
+
+  Future<Either<Failure, ProductsResponse>> searchProducts(
+    String categoryId,
+    String searchQuery, {
+    int? pageNumber,
+    int? pageSize,
+  });
+
   Future<Either<Failure, Product>> getProduct(int id);
   Future<Either<Failure, Product>> postProduct(
     String name,

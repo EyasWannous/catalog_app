@@ -27,15 +27,15 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
   @override
   void write(BinaryWriter writer, ProductModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.id)
+      ..write(obj.hiveId)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.hiveName)
       ..writeByte(2)
-      ..write(obj.description)
+      ..write(obj.hiveDescription)
       ..writeByte(3)
-      ..write(obj.categoryId);
+      ..write(obj.hiveCategoryId);
   }
 
   @override

@@ -37,7 +37,7 @@ final appRouter = GoRouter(
         }
         return BlocProvider(
           create: (context) =>
-              sl<ProductsCubit>()..getProducts(categoryId ?? ''),
+              sl<ProductsCubit>()..getProducts(categoryId ?? '', isInitialLoad: true),
           child: ProductsScreen(categoryTitle: categoryName),
         );
       },

@@ -1,24 +1,49 @@
-import 'package:catalog_app/features/products/domain/entities/product.dart';
 import 'package:catalog_app/features/products/presentation/cubit/products_cubit.dart';
+import 'package:catalog_app/features/products/presentation/screen/paginated_products_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
-import '../../../../core/sharedWidgets/product_card.dart';
 
-class ProductsScreen extends StatelessWidget {
+class ProductsScreen extends StatefulWidget {
   final String? categoryTitle;
 
   const ProductsScreen({super.key, this.categoryTitle});
+
+  @override
+  State<ProductsScreen> createState() => _ProductsScreenState();
+}
+
+class _ProductsScreenState extends State<ProductsScreen> {
+  String? _searchQuery;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initial load with no search
+    context.read<ProductsCubit>().getProducts(
+          '', // TODO: replace with real category ID if needed
+          isInitialLoad: true,
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: categoryTitle ?? "All Products",
+        title: widget.categoryTitle ?? "All Products",
         onMenuPressed: () {},
-        onSearchChanged: (value) {},
+        onSearchChanged: (value) {
+          // Update local query
+          _searchQuery = value.trim();
+          // Trigger Cubit with new search
+          context.read<ProductsCubit>().getProducts(
+                '', // TODO: replace with real category ID if needed
+                isInitialLoad: true,
+                searchQuery: _searchQuery,
+              );
+        },
       ),
       body: Container(
         constraints: BoxConstraints(
@@ -27,19 +52,43 @@ class ProductsScreen extends StatelessWidget {
         child: BlocBuilder<ProductsCubit, ProductsState>(
           builder: (context, state) {
             if (state is ProductsLoading) {
-              
               return const Center(child: CircularProgressIndicator());
             }
+
             if (state is ProductsLoaded) {
-              if (state.products.products.isEmpty) {
+              if (state.response.products.isEmpty) {
                 return _buildEmptyState(context);
               } else {
-                return _buildProductGrid(state.products.products, context);
+                return Column(
+                  children: [
+                    Expanded(
+                      child: PaginatedProductsGrid(
+                        products: state.response.products,
+                        isLoadingMore: state.isLoadingMore,
+                        hasMore: state.response.pagination.hasNextPage,
+                        onEndReached: () {
+                          context.read<ProductsCubit>().getProducts(
+                                '', // TODO: real category ID
+                                isInitialLoad: false,
+                                searchQuery: _searchQuery,
+                              );
+                        },
+                      ),
+                    ),
+                    if (state.isLoadingMore)
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                  ],
+                );
               }
             }
+
             if (state is ProductsError) {
               return _buildEmptyState(context);
             }
+
             return _buildEmptyState(context);
           },
         ),
@@ -67,46 +116,8 @@ class ProductsScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 8)),
-          // Text(
-          //   'Try searching for different products',
-          //   style: TextStyle(
-          //     fontSize: 14 * ResponsiveUtils.getFontSizeMultiplier(context),
-          //     color: Colors.grey[500],
-          //   ),
-          // ),
         ],
       ),
-    );
-  }
-
-  Widget _buildProductGrid(List<Product> products, BuildContext context) {
-    return GridView.builder(
-
-      padding: ResponsiveUtils.getResponsivePadding(context).copyWith(
-        top: ResponsiveUtils.getResponsiveSpacing(context, 16),
-        bottom: ResponsiveUtils.getResponsiveSpacing(context, 16),
-      ),
-      itemCount: products.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: ResponsiveUtils.getGridColumns(context),
-        crossAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context, 16),
-        mainAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context, 16),
-        childAspectRatio:
-            ResponsiveUtils.isTablet(context) ||
-                    ResponsiveUtils.isDesktop(context)
-                ? 0.75
-                : 0.7,
-      ),
-      itemBuilder: (context, index) {
-        final product = products[index];
-        return ProductCard(
-          image: 'product.image',
-          title: product.name,
-          description: product.description,
-          showDescription: true,
-          onTap: () {},
-        );
-      },
     );
   }
 }

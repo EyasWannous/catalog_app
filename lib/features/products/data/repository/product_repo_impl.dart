@@ -23,11 +23,17 @@ class ProductRepoImpl extends ProductRepository {
 
   @override
   Future<Either<Failure, ProductsResponse>> getProducts(
-    String categoryId,
-  ) async {
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
     try {
       if (await networkInfo.isConnected) {
-        return await _getAndCacheProducts(categoryId);
+        return await _getAndCacheProducts(
+          categoryId,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
       } else {
         return await _getCachedProducts(categoryId);
       }
@@ -37,13 +43,21 @@ class ProductRepoImpl extends ProductRepository {
   }
 
   Future<Either<Failure, ProductsResponse>> _getAndCacheProducts(
-    String categoryId,
-  ) async {
-    final response = await productRemoteDataSource.getProducts(categoryId);
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    final response = await productRemoteDataSource.getProducts(
+      categoryId,
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+    );
+
     await productLocalDataSource.cacheProductsByCategory(
       categoryId,
       response.products.map((e) => ProductModel.fromEntity(e)).toList(),
     );
+
     return Right(response);
   }
 
@@ -147,6 +161,27 @@ class ProductRepoImpl extends ProductRepository {
         return Right(response);
       }
       return Left(OfflineFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProductsResponse>> searchProducts(
+    String categoryId,
+    String searchQuery, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    try {
+      final response = await productRemoteDataSource.searchProducts(
+        categoryId,
+        searchQuery,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
+
+      return Right(response);
     } catch (e) {
       return Left(ServerFailure());
     }

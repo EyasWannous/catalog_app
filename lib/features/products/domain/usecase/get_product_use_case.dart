@@ -8,7 +8,26 @@ class GetProductsUseCase {
 
   GetProductsUseCase(this.productRepository);
 
-  Future<Either<Failure, ProductsResponse>> call(String categoryId) async {
-    return await productRepository.getProducts(categoryId);
+  /// If [searchQuery] is provided, searchProducts is called.
+  Future<Either<Failure, ProductsResponse>> call(
+    String categoryId, {
+    required int pageNumber,
+    required int pageSize,
+    String? searchQuery,
+  }) async {
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      return await productRepository.searchProducts(
+        categoryId,
+        searchQuery,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
+    } else {
+      return await productRepository.getProducts(
+        categoryId,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
+    }
   }
 }
