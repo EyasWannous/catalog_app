@@ -1,10 +1,33 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
-import 'package:catalog_app/di/injection_container.dart';
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/adapters.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Required if you need to call native code before runApp
-  await initDependencies(); // Initialize GetIt and register dependencies
-  runApp(const MyApp());
+import 'core/network/service_locator.dart';
+import 'core/route/app_router.dart';
+import 'features/categroy/data/models/category_model.dart';
+import 'features/products/data/model/product_model.dart';
+
+Future<void> initHive() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(CategoryModelAdapter());
+  await Hive.openBox<CategoryModel>('categoriesBox');
+
+  Hive.registerAdapter(ProductModelAdapter());
+  await Hive.openBox('productsBox');
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initHive();
+  await init();
+
+  runApp(
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -12,61 +35,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+    return MaterialApp.router(
+      routerConfig: appRouter,
+      title: 'Catalog App',
+      useInheritedMediaQuery: true, // Required for device_preview
+      locale: DevicePreview.locale(context), // Required for device_preview
+      builder: DevicePreview.appBuilder, // Required for device_preview
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFFFC1D4)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text(
-                'You have pushed the button this many times:',
-              ),
-              Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _incrementCounter,
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
-        )
-      );
   }
 }

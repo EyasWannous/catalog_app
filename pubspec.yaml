@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.3
+  sdk: ^3.8.1
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -31,38 +31,46 @@ dependencies:
   flutter:
     sdk: flutter
 
+  carousel_slider:
+  device_preview:
   connectivity_plus: ^6.1.3
-  dartz: ^0.10.1
-  
+  dartz:
   # HTTP Client
-  dio: ^5.8.0+1
-  equatable: ^2.0.7
+  dio:
+  equatable:
   
-  flutter_dotenv: ^5.2.1 # For environment variables
+  flutter_dotenv: # For environment variables
 
   # Navigation
-  go_router: ^15.1.2
+  go_router:
   # Dependency Injection
-  get_it: ^8.0.3
+  get_it:
 
   # Utilities
-  intl: ^0.20.2
+  intl:
 
   logger: ^2.5.0
+  hive:
+  hive_flutter:
+
 
   # Local Storage
   shared_preferences: ^2.5.3
 
   # State Management
-  provider: ^6.1.5 # Or bloc, flutter_bloc, riverpod
-
+  # provider: ^6.1.5 # Or bloc, flutter_bloc, riverpod
+  flutter_bloc:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  bloc: ^9.0.0
+  meta: ^1.16.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  hive_generator:
+  build_runner:
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -70,8 +78,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-  flutter_launcher_icons: ^0.14.3
-  # flutter_native_splash: ^2.4.4
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
