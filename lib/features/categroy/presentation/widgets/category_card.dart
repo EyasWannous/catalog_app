@@ -10,8 +10,7 @@ class CategoryCard extends StatelessWidget {
   final Category category;
   final int index;
 
-  const CategoryCard({Key? key, required this.category, required this.index})
-    : super(key: key);
+  const CategoryCard({super.key, required this.category, required this.index});
 
 
   double _getCardHeight(BuildContext context) {

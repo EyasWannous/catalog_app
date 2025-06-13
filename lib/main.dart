@@ -1,4 +1,4 @@
-import 'package:catalog_app/features/categroy/presentation/screen/categories_screen.dart';
+import 'package:catalog_app/features/homepage/presentation/screen/home_page.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -24,6 +24,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initHive();
   await init();
+
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,

@@ -12,7 +12,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color textColor;
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     this.title,
     this.searchHint = 'ابحث عن المنتج الذي تريده',
     this.onMenuPressed,
@@ -21,7 +21,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showSearch = true,
     this.backgroundColor = const Color(0xFFFFC1D4),
     this.textColor = Colors.white,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

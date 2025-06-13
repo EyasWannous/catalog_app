@@ -9,7 +9,7 @@ import '../../../../core/sharedWidgets/product_card.dart';
 class ProductsScreen extends StatelessWidget {
   final String? categoryTitle;
 
-  const ProductsScreen({Key? key, this.categoryTitle}) : super(key: key);
+  const ProductsScreen({super.key, this.categoryTitle});
 
   @override
   Widget build(BuildContext context) {

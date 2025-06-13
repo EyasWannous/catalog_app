@@ -14,6 +14,8 @@ import '../cubit/homepage_cubit.dart';
 import '../cubit/homepage_state.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
