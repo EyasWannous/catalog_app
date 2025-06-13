@@ -1,8 +1,14 @@
+import 'package:catalog_app/features/categroy/domain/usecases/create_category_use_case.dart';
+import 'package:catalog_app/features/categroy/domain/usecases/delete_category_use_case.dart';
+import 'package:catalog_app/features/categroy/domain/usecases/update_category_use_case.dart';
 import 'package:catalog_app/features/products/data/datasource/product_local_data_source.dart';
 import 'package:catalog_app/features/products/data/datasource/product_remote_data_source.dart';
 import 'package:catalog_app/features/products/data/repository/product_repo_impl.dart';
 import 'package:catalog_app/features/products/domain/repository/product_repository.dart';
-import 'package:catalog_app/features/products/domain/usecase/get_product_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/create_product_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/delete_product_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/get_products_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/update_product_use_case.dart';
 import 'package:catalog_app/features/products/presentation/cubit/productcubit/product_cubit.dart';
 import 'package:catalog_app/features/products/presentation/cubit/products_cubit.dart';
 import 'package:get_it/get_it.dart';
@@ -15,7 +21,7 @@ import 'package:catalog_app/core/network/network_info.dart';
 import 'package:catalog_app/features/categroy/data/datasources/remote/category_remote_data_source.dart';
 import 'package:catalog_app/features/categroy/data/repositories/category_repository_impl.dart';
 import 'package:catalog_app/features/categroy/domain/repositories/category_repository.dart';
-import 'package:catalog_app/features/categroy/domain/usecases/get_categories.dart';
+import 'package:catalog_app/features/categroy/domain/usecases/get_categories_use_case.dart';
 import 'package:catalog_app/features/categroy/presentation/cubit/categories_cubit.dart';
 
 /// Service Locator for dependency injection
@@ -51,8 +57,21 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
-  sl.registerLazySingleton<GetCategoriesUseCase>(() => GetCategoriesUseCase(sl()));
-  sl.registerFactory<CategoriesCubit>(() => CategoriesCubit(sl()));
+  sl.registerLazySingleton<GetCategoriesUseCase>(
+    () => GetCategoriesUseCase(sl()),
+  );
+  sl.registerLazySingleton<CreateCategoryUseCase>(
+    () => CreateCategoryUseCase(sl()),
+  );
+  sl.registerLazySingleton<UpdateCategoryUseCase>(
+    () => UpdateCategoryUseCase(sl()),
+  );
+  sl.registerLazySingleton<DeleteCategoryUseCase>(
+    () => DeleteCategoryUseCase(sl()),
+  );
+  sl.registerFactory<CategoriesCubit>(
+    () => CategoriesCubit(sl(), sl(), sl(), sl()),
+  );
 
   // Features - Product
   sl.registerLazySingleton<Box>(() => Hive.box('productsBox'));
@@ -71,7 +90,18 @@ Future<void> init() async {
     ),
   );
   sl.registerLazySingleton<GetProductsUseCase>(() => GetProductsUseCase(sl()));
-  sl.registerFactory<ProductsCubit>(() => ProductsCubit(sl()));
+  sl.registerLazySingleton<CreateProductUseCase>(
+    () => CreateProductUseCase(sl()),
+  );
+  sl.registerLazySingleton<UpdateProductUseCase>(
+    () => UpdateProductUseCase(sl()),
+  );
+  sl.registerLazySingleton<DeleteProductUseCase>(
+    () => DeleteProductUseCase(sl()),
+  );
+  sl.registerFactory<ProductsCubit>(
+    () => ProductsCubit(sl(), sl(), sl(), sl()),
+  );
   sl.registerFactory<ProductCubit>(() => ProductCubit());
 }
 

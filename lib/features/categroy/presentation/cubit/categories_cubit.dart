@@ -1,10 +1,16 @@
+import 'package:catalog_app/features/categroy/domain/usecases/delete_category_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/category.dart';
-import '../../domain/usecases/get_categories.dart';
+import '../../domain/usecases/create_category_use_case.dart';
+import '../../domain/usecases/get_categories_use_case.dart';
+import '../../domain/usecases/update_category_use_case.dart';
 import 'categories_state.dart';
 
 class CategoriesCubit extends Cubit<CategoriesState> {
   final GetCategoriesUseCase _getCategories;
+  final CreateCategoryUseCase _createCategory;
+  final UpdateCategoryUseCase _updateCategory;
+  final DeleteCategoryUseCase _deleteCategory;
 
   int _currentPage = 1;
   bool _isFetching = false;
@@ -12,16 +18,17 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   bool _hasMore = true;
   final List<Category> _categories = [];
 
-  CategoriesCubit(this._getCategories) : super(CategoriesInitial());
+  CategoriesCubit(
+    this._getCategories,
+    this._createCategory,
+    this._updateCategory,
+    this._deleteCategory,
+  ) : super(CategoriesInitial());
 
   Future<void> getCategories({bool isInitialLoad = false}) async {
-    if (_isFetching) {
-      return;
-    }
+    if (_isFetching) return;
 
-    if (!_hasMore && !isInitialLoad) {
-      return;
-    }
+    if (!_hasMore && !isInitialLoad) return;
 
     _isFetching = true;
 
@@ -39,34 +46,67 @@ class CategoriesCubit extends Cubit<CategoriesState> {
       );
     }
 
-    try {
-      final result = await _getCategories(
-        pageNumber: _currentPage,
-        pageSize: _pageSize,
-      );
-      result.fold(
-        (failure) => emit(CategoriesError("Failed to load: $failure")),
-        (response) {
-          final newCategories = response.categories;
+    final result = await _getCategories(
+      pageNumber: _currentPage,
+      pageSize: _pageSize,
+    );
 
-          _categories.addAll(newCategories);
-          _hasMore = newCategories.length == _pageSize;
+    result.fold(
+      (failure) => emit(CategoriesError("Failed to load: $failure")),
+      (response) {
+        final newCategories = response.categories;
 
-          if (_hasMore) _currentPage++;
+        _categories.addAll(newCategories);
+        _hasMore = newCategories.length == _pageSize;
 
-          emit(
-            CategoriesLoaded(
-              categories: List.from(_categories),
-              isLoadingMore: false,
-              hasMore: _hasMore,
-            ),
-          );
-        },
-      );
-    } catch (e) {
-      emit(CategoriesError("Exception: $e"));
-    } finally {
-      _isFetching = false;
-    }
+        if (_hasMore) _currentPage++;
+
+        emit(
+          CategoriesLoaded(
+            categories: List.from(_categories),
+            isLoadingMore: false,
+            hasMore: _hasMore,
+          ),
+        );
+      },
+    );
+
+    _isFetching = false;
+  }
+
+  Future<void> createCategory(String name, String description) async {
+    emit(CategoriesFormSubmitting());
+    final result = await _createCategory(name, description);
+    result.fold(
+      (failure) => emit(CategoriesFormError("Failed to create: $failure")),
+      (category) {
+        _categories.insert(0, category);
+        emit(CategoriesFormSuccess(category));
+      },
+    );
+  }
+
+  Future<void> updateCategory(int id, String name, String description) async {
+    emit(CategoriesFormSubmitting());
+    final result = await _updateCategory(id, name, description);
+    result.fold(
+      (failure) => emit(CategoriesFormError("Failed to update: $failure")),
+      (category) {
+        final index = _categories.indexWhere((c) => c.id == id);
+        if (index != -1) {
+          _categories[index] = category;
+        }
+        emit(CategoriesFormSuccess(category));
+      },
+    );
+  }
+
+  Future<void> deleteCategory(int id) async {
+    emit(CategoryDeleting());
+    final result = await _deleteCategory(id);
+    result.fold(
+      (failure) => emit(CategoryDeleteError(failure.toString())),
+      (_) => emit(CategoryDeleted()),
+    );
   }
 }
