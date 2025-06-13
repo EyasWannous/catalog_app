@@ -1,3 +1,5 @@
+import 'package:catalog_app/core/network/service_locator.dart';
+import 'package:catalog_app/features/categroy/presentation/screen/paginated_categories_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
@@ -11,7 +13,7 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CategoriesCubit()..loadCategories(),
+      create: (context) => sl<CategoriesCubit>()..getCategories(isInitialLoad: true),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
@@ -22,9 +24,7 @@ class CategoriesScreen extends StatelessWidget {
         body: BlocBuilder<CategoriesCubit, CategoriesState>(
           builder: (context, state) {
             if (state is CategoriesLoading) {
-              return Center(
-                child: CircularProgressIndicator(color: Color(0xFFFFC1D4)),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
 
             if (state is CategoriesError) {
@@ -32,32 +32,44 @@ class CategoriesScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 64, color: Colors.red),
-                    SizedBox(height: 16),
-                    Text(
-                      state.message,
-                      style: TextStyle(fontSize: 16, color: Colors.red),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<CategoriesCubit>().refreshCategories();
-                      },
-                      child: Text('Retry'),
-                    ),
+                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Text(state.message, style: const TextStyle(fontSize: 16, color: Colors.red)),
+                    const SizedBox(height: 16),
+                    ElevatedButton(onPressed: () {
+                      context.read<CategoriesCubit>().getCategories(isInitialLoad: true);
+                    }, child: const Text('Retry')),
                   ],
                 ),
               );
             }
 
             if (state is CategoriesLoaded) {
-              return CategoriesList(categories: state.categories);
+              return Column(
+                children: [
+                  Expanded(
+                    child: PaginatedCategoriesList(
+                      categories: state.categories,
+                      isLoadingMore: state.isLoadingMore,
+                      hasMore: state.hasMore,
+                      onEndReached: () {
+                        context.read<CategoriesCubit>().getCategories();
+                      },
+                    ),
+                  ),
+                  if (state.isLoadingMore)
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                ],
+              );
             }
 
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
           },
-        ),
+        )
+        ,
       ),
     );
   }

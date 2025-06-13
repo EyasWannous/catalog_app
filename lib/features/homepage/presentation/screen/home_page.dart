@@ -1,7 +1,10 @@
+import 'package:catalog_app/features/categroy/presentation/screen/categories_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
+import '../../../categroy/presentation/cubit/categories_cubit.dart';
+import '../../../categroy/presentation/cubit/categories_state.dart';
 import '../../../products/presentation/screen/products_screen.dart';
 import '../widgets/section_title.dart';
 import '../widgets/carousel_section.dart';
@@ -16,7 +19,9 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomepageCubit()..loadHomepageData(),
+      create: (context) =>
+      HomepageCubit()
+        ..loadHomepageData(),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
@@ -90,12 +95,32 @@ class HomePage extends StatelessWidget {
 
                     SectionTitle(
                       title: 'Categories',
-                      onSeeAllPressed: () => _navigateToProducts(context),
+                      onSeeAllPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CategoriesScreen()),
+                        );
+                      },
                     ),
                     SizedBox(
                       height: ResponsiveUtils.getResponsiveSpacing(context, 10),
                     ),
-                    CategoriesSection(categories: state.categories),
+
+                    BlocBuilder<CategoriesCubit, CategoriesState>(
+                      builder: (context, state) {
+                        if (state is CategoriesLoading) {
+                          return Center(
+                            child: CircularProgressIndicator(
+                                color: Color(0xFFFFC1D4)),
+                          );}
+
+                       if(state is CategoriesLoaded){
+                          return CategoriesSection(categories: state.categories);
+                       }
+                        return SizedBox.shrink();
+                      },
+                    ),
                     SizedBox(
                       height: ResponsiveUtils.getResponsiveSpacing(context, 24),
                     ),
