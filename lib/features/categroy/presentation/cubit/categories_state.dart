@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/category.dart';
@@ -13,6 +12,7 @@ abstract class CategoriesState extends Equatable {
 class CategoriesInitial extends CategoriesState {}
 
 class CategoriesLoading extends CategoriesState {}
+
 class CategoriesLoaded extends CategoriesState {
   final List<Category> categories;
   final bool isLoadingMore;
@@ -40,8 +40,6 @@ class CategoriesLoaded extends CategoriesState {
   }
 }
 
-
-
 class CategoriesError extends CategoriesState {
   final String message;
 
@@ -49,4 +47,26 @@ class CategoriesError extends CategoriesState {
 
   @override
   List<Object> get props => [message];
+}
+
+// ✅ NEW: for Add/Update actions
+class CategoriesFormSubmitting extends CategoriesState {}
+
+class CategoriesFormSuccess extends CategoriesState {
+  final Category category;
+  const CategoriesFormSuccess(this.category);
+}
+
+class CategoriesFormError extends CategoriesState {
+  final String message;
+  const CategoriesFormError(this.message);
+}
+
+class CategoryDeleting extends CategoriesState {}
+
+class CategoryDeleted extends CategoriesState {}
+
+class CategoryDeleteError extends CategoriesState {
+  final String message;
+  const CategoryDeleteError(this.message);
 }
