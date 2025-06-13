@@ -5,7 +5,7 @@ import 'category_card.dart';
 class CategoriesList extends StatelessWidget {
   final List<Map<String, dynamic>> categories;
 
-  const CategoriesList({Key? key, required this.categories}) : super(key: key);
+  const CategoriesList({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {

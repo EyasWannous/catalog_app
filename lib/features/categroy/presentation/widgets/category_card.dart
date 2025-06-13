@@ -7,8 +7,7 @@ class CategoryCard extends StatelessWidget {
   final Map<String, dynamic> category;
   final int index;
 
-  const CategoryCard({Key? key, required this.category, required this.index})
-    : super(key: key);
+  const CategoryCard({super.key, required this.category, required this.index});
 
   double _getCardHeight(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;

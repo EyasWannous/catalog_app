@@ -4,8 +4,7 @@ import '../../../../core/utils/responsive_utils.dart';
 class CategoriesSection extends StatelessWidget {
   final List<Map<String, String>> categories;
 
-  const CategoriesSection({Key? key, required this.categories})
-    : super(key: key);
+  const CategoriesSection({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {

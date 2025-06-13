@@ -6,7 +6,7 @@ import '../../../../core/utils/responsive_utils.dart';
 class ProductsScreen extends StatefulWidget {
   final String? categoryTitle;
 
-  const ProductsScreen({Key? key, this.categoryTitle}) : super(key: key);
+  const ProductsScreen({super.key, this.categoryTitle});
 
   @override
   _ProductsScreenState createState() => _ProductsScreenState();

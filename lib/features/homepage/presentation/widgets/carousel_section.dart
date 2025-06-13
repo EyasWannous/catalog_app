@@ -10,18 +10,17 @@ class CarouselSection extends StatefulWidget {
   final int currentIndex;
 
   const CarouselSection({
-    Key? key,
+    super.key,
     required this.offers,
     required this.currentIndex,
-  }) : super(key: key);
+  });
 
   @override
-  _CarouselSectionState createState() => _CarouselSectionState();
+  CarouselSectionState createState() => CarouselSectionState();
 }
 
-class _CarouselSectionState extends State<CarouselSection> {
-  final carousel.CarouselController _carouselController =
-      carousel.CarouselController();
+class CarouselSectionState extends State<CarouselSection> {
+  final carousel.CarouselSliderController _carouselController = carousel.CarouselSliderController();
 
   double _getCarouselHeight(BuildContext context) {
     if (ResponsiveUtils.isMobile(context)) {
@@ -39,7 +38,7 @@ class _CarouselSectionState extends State<CarouselSection> {
 
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: carouselHeight,
           child: Stack(
             children: [
@@ -153,11 +152,11 @@ class _CarouselSectionState extends State<CarouselSection> {
             width: ResponsiveUtils.getResponsiveIconSize(context, 40),
             height: ResponsiveUtils.getResponsiveIconSize(context, 40),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 6,
                   offset: Offset(0, 2),
                 ),

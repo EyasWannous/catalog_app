@@ -6,8 +6,7 @@ import '../../../products/presentation/screen/products_screen.dart';
 class ProductsGridSection extends StatelessWidget {
   final List<String> productImages;
 
-  const ProductsGridSection({Key? key, required this.productImages})
-    : super(key: key);
+  const ProductsGridSection({super.key, required this.productImages});
 
   @override
   Widget build(BuildContext context) {
