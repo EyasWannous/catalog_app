@@ -35,6 +35,7 @@ packages:
     description:
       name: async
       sha256: "758e6d74e971c3e5aceb4110bfd6698efc7f501675bcfe0c775459a8140750eb"
+
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
@@ -554,6 +555,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.16.0"
+
   mime:
     dependency: transitive
     description:
