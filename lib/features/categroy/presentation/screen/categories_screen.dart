@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
 import '../cubit/categories_cubit.dart';
 import '../cubit/categories_state.dart';
-import '../widgets/categories_list.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});

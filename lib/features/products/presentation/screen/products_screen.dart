@@ -1,5 +1,5 @@
-import 'package:catalog_app/features/products/domain/entities/product_entity.dart';
-import 'package:catalog_app/features/products/presentation/bloc/products_cubit.dart';
+import 'package:catalog_app/features/products/domain/entities/product.dart';
+import 'package:catalog_app/features/products/presentation/cubit/products_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/responsive_utils.dart';
@@ -79,7 +79,7 @@ class ProductsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductGrid(List<ProductEntity> products, BuildContext context) {
+  Widget _buildProductGrid(List<Product> products, BuildContext context) {
     return GridView.builder(
 
       padding: ResponsiveUtils.getResponsivePadding(context).copyWith(
@@ -103,8 +103,6 @@ class ProductsScreen extends StatelessWidget {
           image: 'product.image',
           title: product.name,
           description: product.description,
-          price: product.price,
-          showPrice: true,
           showDescription: true,
           onTap: () {},
         );

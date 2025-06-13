@@ -11,7 +11,7 @@ class ProductCard extends StatelessWidget {
   final bool showDescription;
 
   const ProductCard({
-    key,
+    super.key,
     required this.image,
     this.title,
     this.description,
@@ -19,7 +19,7 @@ class ProductCard extends StatelessWidget {
     this.onTap,
     this.showPrice = false,
     this.showDescription = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class ProductCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 4,
               offset: Offset(0, 2),
             ),

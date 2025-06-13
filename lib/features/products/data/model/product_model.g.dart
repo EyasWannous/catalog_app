@@ -17,12 +17,10 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ProductModel(
-      id: fields[0] as int,
-      name: fields[1] as String,
-      description: fields[2] as String,
-      price: fields[3] as String,
-      rating: fields[4] as int,
-      categoryId: fields[5] as int,
+      hiveId: fields[0] as int,
+      hiveName: fields[1] as String,
+      hiveDescription: fields[2] as String,
+      hiveCategoryId: fields[3] as int,
     );
   }
 
@@ -37,10 +35,6 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       ..writeByte(2)
       ..write(obj.description)
       ..writeByte(3)
-      ..write(obj.price)
-      ..writeByte(4)
-      ..write(obj.rating)
-      ..writeByte(5)
       ..write(obj.categoryId);
   }
 

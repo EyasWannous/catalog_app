@@ -1,10 +1,8 @@
 import 'package:catalog_app/core/route/app_routes.dart';
 import 'package:catalog_app/features/categroy/domain/entities/category.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/responsive_utils.dart';
-import '../cubit/categories_cubit.dart';
 
 class CategoryCard extends StatelessWidget {
   final Category category;
@@ -60,7 +58,7 @@ class CategoryCard extends StatelessWidget {
           ResponsiveUtils.getResponsiveBorderRadius(context, 20),
         ),
         onTap: () {
-          context.push(AppRoutes.product, extra: {'categoryId': category.id.toString(), 'categoryName': category.name});
+          context.push(AppRoutes.products, extra: {'categoryId': category.id.toString(), 'categoryName': category.name});
         },
         child: Padding(
           padding: EdgeInsets.symmetric(

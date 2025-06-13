@@ -1,9 +1,9 @@
 import 'package:catalog_app/features/categroy/data/models/pagination_model.dart';
 import 'package:catalog_app/features/products/data/model/product_model.dart';
-import 'package:catalog_app/features/products/domain/entities/product_response_entity.dart';
+import 'package:catalog_app/features/products/domain/entities/products_response.dart';
 
-class ProductResponseModel extends ProductResponseEntity {
-  ProductResponseModel({
+class ProductResponseModel extends ProductsResponse {
+  const ProductResponseModel({
     required super.products,
     required super.pagination,
     required super.isSuccessful,

@@ -1,12 +1,17 @@
+import 'package:catalog_app/core/error/failure.dart';
+import 'package:catalog_app/features/categroy/domain/entities/categories_response.dart';
 import 'package:catalog_app/features/categroy/domain/repositories/category_repository.dart';
-import 'package:catalog_app/features/categroy/data/models/categories_response_model.dart';
+import 'package:dartz/dartz.dart';
 
-class GetCategories {
+class GetCategoriesUseCase {
   final CategoryRepository repository;
 
-  GetCategories(this.repository);
+  GetCategoriesUseCase(this.repository);
 
-  Future<CategoriesResponseModel> call({int? pageNumber, int? pageSize}) async {
+  Future<Either<Failure, CategoriesResponse>> call({
+    int? pageNumber,
+    int? pageSize,
+  }) async {
     return await repository.getCategories(
       pageNumber: pageNumber,
       pageSize: pageSize,

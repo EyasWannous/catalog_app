@@ -9,12 +9,12 @@ class PaginatedCategoriesList extends StatefulWidget {
   final VoidCallback onEndReached;
 
   const PaginatedCategoriesList({
-    Key? key,
+    super.key,
     required this.categories,
     required this.isLoadingMore,
     required this.hasMore,
     required this.onEndReached,
-  }) : super(key: key);
+  });
 
   @override
   State<PaginatedCategoriesList> createState() => _PaginatedCategoriesListState();

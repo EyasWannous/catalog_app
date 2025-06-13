@@ -1,4 +1,3 @@
-import 'package:catalog_app/features/products/domain/entities/product_entity.dart';
 import 'package:hive/hive.dart';
 
 import '../model/product_model.dart';
@@ -10,6 +9,7 @@ abstract class ProductLocalDataSource {
   );
 
   Future<List<ProductModel>> getCachedProductsByCategory(String categoryId);
+  Future<int> invalidateCache();
 }
 
 class ProductLocalDataSourceImpl implements ProductLocalDataSource {
@@ -38,5 +38,10 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
     } else {
       return [];
     }
+  }
+  
+  @override
+  Future<int> invalidateCache() {
+    return box.clear();
   }
 }

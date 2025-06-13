@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:catalog_app/features/products/data/model/product_model.dart';
-import 'package:catalog_app/features/products/domain/entities/product_response_entity.dart';
+import 'package:catalog_app/features/products/domain/entities/products_response.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_product_use_case.dart';
 import 'package:meta/meta.dart';
 

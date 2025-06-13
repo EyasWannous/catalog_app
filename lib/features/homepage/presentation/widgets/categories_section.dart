@@ -33,7 +33,7 @@ class CategoriesSection extends StatelessWidget {
         InkWell(
           onTap: () {
             context.push(
-              AppRoutes.product,
+              AppRoutes.products,
               extra: {
                 'categoryName': item.name,
                 "categoryId": item.id.toString(),
