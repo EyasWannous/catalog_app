@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -74,19 +75,19 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     return BlocListener<ProductsCubit, ProductsState>(
       listener: (context, state) {
         if (state is ProductFormSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Success!')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Success!'.tr())));
           Navigator.pop(context, state.product);
         } else if (state is ProductFormError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.product == null ? 'Add Product' : 'Edit Product'),
+          title: Text(widget.product == null ? 'Add Product'.tr() : 'Edit Product'.tr()),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -128,25 +129,28 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   const SizedBox(height: 20),
                   TextFormField(
                     controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Name'),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Please enter a name' : null,
+                    decoration: InputDecoration(labelText: 'Name'.tr()),
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Please enter a name'.tr()
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _descriptionController,
-                    decoration: const InputDecoration(labelText: 'Description'),
+                    decoration: InputDecoration(labelText: 'Description'.tr()),
                     maxLines: 3,
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Please enter a description' : null,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Please enter a description'.tr()
+                        : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _categoryIdController,
-                    decoration: const InputDecoration(labelText: 'Category ID'),
+                    decoration: InputDecoration(labelText: 'Category ID'.tr()),
                     keyboardType: TextInputType.number,
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Please enter category ID' : null,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Please enter category ID'.tr()
+                        : null,
                   ),
                   const SizedBox(height: 20),
                   BlocBuilder<ProductsCubit, ProductsState>(
@@ -156,7 +160,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                         onPressed: isLoading ? null : _submit,
                         child: isLoading
                             ? const CircularProgressIndicator()
-                            : Text(widget.product == null ? 'Create' : 'Update'),
+                            : Text(
+                                widget.product == null
+                                    ? 'Create'.tr()
+                                    : 'Update'.tr(),
+                              ),
                       );
                     },
                   ),

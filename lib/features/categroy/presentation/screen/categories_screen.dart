@@ -1,5 +1,6 @@
 import 'package:catalog_app/core/network/service_locator.dart';
 import 'package:catalog_app/features/categroy/presentation/screen/paginated_categories_list.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
@@ -16,7 +17,7 @@ class CategoriesScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-          title: "Categories",
+          title: "Categories".tr(),
           onMenuPressed: () {},
           onSearchChanged: (value) {},
         ),
@@ -37,7 +38,7 @@ class CategoriesScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     ElevatedButton(onPressed: () {
                       context.read<CategoriesCubit>().getCategories(isInitialLoad: true);
-                    }, child: const Text('Retry')),
+                    }, child: Text('Retry'.tr())),
                   ],
                 ),
               );

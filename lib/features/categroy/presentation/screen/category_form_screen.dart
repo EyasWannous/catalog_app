@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/category.dart';
@@ -54,7 +55,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
       listener: (context, state) {
         if (state is CategoriesFormSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Success!')),
+            SnackBar(content: Text('Success!'.tr())),
           );
           Navigator.pop(context, state.category);
         } else if (state is CategoriesFormError) {
@@ -65,7 +66,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.category == null ? 'Add Category' : 'Edit Category'),
+          title: Text(widget.category == null ? 'Add Category'.tr() : 'Edit Category'.tr()),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -85,17 +86,17 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
+                  decoration: InputDecoration(labelText: 'Name'.tr()),
                   validator: (value) =>
-                      value == null || value.isEmpty ? 'Please enter a name' : null,
+                      value == null || value.isEmpty ? 'Please enter a name'.tr() : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _descriptionController,
-                  decoration: const InputDecoration(labelText: 'Description'),
+                  decoration: InputDecoration(labelText: 'Description'.tr()),
                   maxLines: 3,
                   validator: (value) =>
-                      value == null || value.isEmpty ? 'Please enter a description' : null,
+                      value == null || value.isEmpty ? 'Please enter a description'.tr() : null,
                 ),
                 const SizedBox(height: 20),
                 BlocBuilder<CategoriesCubit, CategoriesState>(
@@ -105,7 +106,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                       onPressed: isLoading ? null : _submit,
                       child: isLoading
                           ? const CircularProgressIndicator()
-                          : Text(widget.category == null ? 'Create' : 'Update'),
+                          : Text(widget.category == null ? 'Create'.tr() : 'Update'.tr()),
                     );
                   },
                 ),
