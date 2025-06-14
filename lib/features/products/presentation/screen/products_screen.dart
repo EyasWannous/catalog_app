@@ -2,6 +2,7 @@ import 'package:catalog_app/core/route/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -16,8 +17,8 @@ class ProductsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace with your actual admin check logic
-    final isAdmin = true; // This should come from your auth state
+    // Use global admin configuration
+    final isAdmin = AppConfig.isAdmin;
 
     return Scaffold(
       backgroundColor: Colors.white,

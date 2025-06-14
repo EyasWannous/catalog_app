@@ -327,6 +327,18 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       return false;
     }
 
+    // Validate categoryId
+    final categoryId = widget.categoryId ?? widget.product?.categoryId.toString();
+    if (categoryId == null || categoryId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Category ID is required. Please select a category first.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return false;
+    }
+
     // For new products, require at least one image
     if (widget.product == null && _images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -348,8 +360,18 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     final name = _nameController.text.trim();
     final description = _descriptionController.text.trim();
     final price = double.tryParse(_priceController.text.trim()) ?? 0.0;
-    final categoryId =
-        widget.categoryId ?? widget.product?.categoryId.toString();
+    final categoryId = widget.categoryId ?? widget.product?.categoryId.toString();
+
+    // This should not happen due to validation, but adding safety check
+    if (categoryId == null || categoryId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error: Category ID is missing'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     if (widget.product == null) {
       // Create new product with images
@@ -357,7 +379,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         name,
         description,
         price.toString(),
-        categoryId!,
+        categoryId,
         _images,
       );
     } else {
@@ -367,7 +389,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         name: name,
         description: description,
         price: price.toString(),
-        categoryId: categoryId!,
+        categoryId: categoryId,
         images: _images,
       );
     }

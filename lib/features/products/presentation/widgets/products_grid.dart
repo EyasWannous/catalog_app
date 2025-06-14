@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/responsive_utils.dart';
-import '../../../../core/sharedWidgets/product_card.dart';
-import '../../../../core/constants/app_strings.dart';
 import '../../../../core/route/app_routes.dart';
 import '../../domain/entities/product.dart';
+import 'admin_product_card.dart';
 
 class ProductsGrid extends StatelessWidget {
   final List<Product> products;
@@ -44,13 +43,8 @@ class ProductsGrid extends StatelessWidget {
         itemBuilder: (context, index) {
           if (index < products.length) {
             final product = products[index];
-            return ProductCard(
-              image: AppStrings.defaultProductImage,
-              title: product.name,
-              description: product.description,
-              price: product.price,
-              showDescription: true,
-              showPrice: true,
+            return AdminProductCard(
+              product: product,
               onTap: () {
                 // Navigate to individual product screen
                 context.push(

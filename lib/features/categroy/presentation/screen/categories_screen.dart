@@ -1,3 +1,4 @@
+import 'package:catalog_app/core/config/app_config.dart';
 import 'package:catalog_app/core/constants/app_strings.dart';
 import 'package:catalog_app/core/network/service_locator.dart';
 import 'package:catalog_app/core/route/app_routes.dart';
@@ -15,8 +16,8 @@ class CategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace with your actual admin check logic
-    final isAdmin = true; // This should come from your auth state
+    // Use global admin configuration
+    final isAdmin = AppConfig.isAdmin;
 
     return BlocProvider(
       create: (context) =>
