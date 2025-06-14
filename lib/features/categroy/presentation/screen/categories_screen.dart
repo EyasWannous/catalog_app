@@ -1,8 +1,11 @@
+import 'package:catalog_app/core/constants/app_strings.dart';
 import 'package:catalog_app/core/network/service_locator.dart';
+import 'package:catalog_app/core/route/app_routes.dart';
 import 'package:catalog_app/features/categroy/presentation/screen/paginated_categories_list.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
 import '../cubit/categories_cubit.dart';
 import '../cubit/categories_state.dart';
@@ -12,15 +15,39 @@ class CategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Replace with your actual admin check logic
+    final isAdmin = true; // This should come from your auth state
+
     return BlocProvider(
-      create: (context) => sl<CategoriesCubit>()..getCategories(isInitialLoad: true),
+      create: (context) =>
+          sl<CategoriesCubit>()..getCategories(isInitialLoad: true),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-          title: "Categories".tr(),
+          title: AppStrings.categoriesTitle.tr(),
           onMenuPressed: () {},
           onSearchChanged: (value) {},
+          // Add admin action to app bar if needed
         ),
+        floatingActionButton: isAdmin
+            ? Builder(
+                builder: (context) => FloatingActionButton(
+                  onPressed: () async {
+                    await context
+                        .push(AppRoutes.categoryForm, extra: {'category': null})
+                        .then((_) {
+                          // This runs when returning to CategoriesScreen
+                          if (context.mounted) {
+                            context.read<CategoriesCubit>().getCategories(
+                              isInitialLoad: true,
+                            );
+                          }
+                        });
+                  },
+                  child: const Icon(Icons.add),
+                ),
+              )
+            : null,
         body: BlocBuilder<CategoriesCubit, CategoriesState>(
           builder: (context, state) {
             if (state is CategoriesLoading) {
@@ -32,13 +59,25 @@ class CategoriesScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
                     const SizedBox(height: 16),
-                    Text(state.message, style: const TextStyle(fontSize: 16, color: Colors.red)),
+                    Text(
+                      state.message,
+                      style: const TextStyle(fontSize: 16, color: Colors.red),
+                    ),
                     const SizedBox(height: 16),
-                    ElevatedButton(onPressed: () {
-                      context.read<CategoriesCubit>().getCategories(isInitialLoad: true);
-                    }, child: Text('Retry'.tr())),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<CategoriesCubit>().getCategories(
+                          isInitialLoad: true,
+                        );
+                      },
+                      child: Text(AppStrings.retry.tr()),
+                    ),
                   ],
                 ),
               );
@@ -55,6 +94,7 @@ class CategoriesScreen extends StatelessWidget {
                       onEndReached: () {
                         context.read<CategoriesCubit>().getCategories();
                       },
+                      isAdmin: isAdmin,
                     ),
                   ),
                   if (state.isLoadingMore)
@@ -68,8 +108,7 @@ class CategoriesScreen extends StatelessWidget {
 
             return const SizedBox.shrink();
           },
-        )
-        ,
+        ),
       ),
     );
   }

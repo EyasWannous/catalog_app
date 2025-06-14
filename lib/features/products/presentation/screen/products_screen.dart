@@ -1,25 +1,45 @@
-import 'package:catalog_app/features/products/domain/entities/product.dart';
-import 'package:catalog_app/features/products/presentation/cubit/products_cubit.dart';
+import 'package:catalog_app/core/route/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
-import '../../../../core/sharedWidgets/product_card.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../cubit/products_cubit.dart';
+import '../widgets/widgets.dart';
 
 class ProductsScreen extends StatelessWidget {
   final String? categoryTitle;
+  final String? categoryId;
 
-  const ProductsScreen({super.key, this.categoryTitle});
+  const ProductsScreen({super.key, this.categoryTitle, this.categoryId});
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Replace with your actual admin check logic
+    final isAdmin = true; // This should come from your auth state
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: categoryTitle ?? "All Products",
+        title: categoryTitle ?? AppStrings.allProducts,
         onMenuPressed: () {},
         onSearchChanged: (value) {},
       ),
+      floatingActionButton: isAdmin
+          ? Builder(
+              builder: (context) => FloatingActionButton(
+                onPressed: () async {
+                  context.push(
+                    AppRoutes.productForm,
+                    extra: {'product': null, 'categoryId': categoryId},
+                  );
+                },
+                child: const Icon(Icons.add),
+              ),
+            )
+          : null,
+
       body: Container(
         constraints: BoxConstraints(
           maxWidth: ResponsiveUtils.getMaxContentWidth(context),
@@ -27,19 +47,86 @@ class ProductsScreen extends StatelessWidget {
         child: BlocBuilder<ProductsCubit, ProductsState>(
           builder: (context, state) {
             if (state is ProductsLoading) {
-              
               return const Center(child: CircularProgressIndicator());
             }
+
+            if (state is ProductsError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: ResponsiveUtils.getResponsiveIconSize(context, 64),
+                      color: Colors.red,
+                    ),
+                    SizedBox(
+                      height: ResponsiveUtils.getResponsiveSpacing(context, 16),
+                    ),
+                    Text(
+                      state.message,
+                      style: TextStyle(
+                        fontSize:
+                            16 * ResponsiveUtils.getFontSizeMultiplier(context),
+                        color: Colors.red,
+                      ),
+                    ),
+                    SizedBox(
+                      height: ResponsiveUtils.getResponsiveSpacing(context, 16),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        final extra = GoRouterState.of(context).extra;
+                        String? categoryId;
+                        if (extra is Map) {
+                          categoryId = extra['categoryId'] as String?;
+                        }
+                        context.read<ProductsCubit>().getProducts(
+                          categoryId ?? '',
+                          isInitialLoad: true,
+                        );
+                      },
+                      child: Text(AppStrings.retry),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             if (state is ProductsLoaded) {
-              if (state.products.products.isEmpty) {
+              if (state.products.isEmpty) {
                 return _buildEmptyState(context);
               } else {
-                return _buildProductGrid(state.products.products, context);
+                return Column(
+                  children: [
+                    Expanded(
+                      child: PaginatedProductsList(
+                        products: state.products,
+                        isLoadingMore: state.isLoadingMore,
+                        hasMore: state.hasMore,
+                        categoryTitle: categoryTitle,
+                        onEndReached: () {
+                          final extra = GoRouterState.of(context).extra;
+                          String? categoryId;
+                          if (extra is Map) {
+                            categoryId = extra['categoryId'] as String?;
+                          }
+                          context.read<ProductsCubit>().getProducts(
+                            categoryId ?? '',
+                          );
+                        },
+                      ),
+                    ),
+                    if (state.isLoadingMore)
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                  ],
+                );
               }
             }
-            if (state is ProductsError) {
-              return _buildEmptyState(context);
-            }
+
             return _buildEmptyState(context);
           },
         ),
@@ -59,7 +146,7 @@ class ProductsScreen extends StatelessWidget {
           ),
           SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 16)),
           Text(
-            'No Products Found',
+            AppStrings.noProductsFound,
             style: TextStyle(
               fontSize: 20 * ResponsiveUtils.getFontSizeMultiplier(context),
               fontWeight: FontWeight.w600,
@@ -67,46 +154,8 @@ class ProductsScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 8)),
-          // Text(
-          //   'Try searching for different products',
-          //   style: TextStyle(
-          //     fontSize: 14 * ResponsiveUtils.getFontSizeMultiplier(context),
-          //     color: Colors.grey[500],
-          //   ),
-          // ),
         ],
       ),
-    );
-  }
-
-  Widget _buildProductGrid(List<Product> products, BuildContext context) {
-    return GridView.builder(
-
-      padding: ResponsiveUtils.getResponsivePadding(context).copyWith(
-        top: ResponsiveUtils.getResponsiveSpacing(context, 16),
-        bottom: ResponsiveUtils.getResponsiveSpacing(context, 16),
-      ),
-      itemCount: products.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: ResponsiveUtils.getGridColumns(context),
-        crossAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context, 16),
-        mainAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context, 16),
-        childAspectRatio:
-            ResponsiveUtils.isTablet(context) ||
-                    ResponsiveUtils.isDesktop(context)
-                ? 0.75
-                : 0.7,
-      ),
-      itemBuilder: (context, index) {
-        final product = products[index];
-        return ProductCard(
-          image: 'product.image',
-          title: product.name,
-          description: product.description,
-          showDescription: true,
-          onTap: () {},
-        );
-      },
     );
   }
 }

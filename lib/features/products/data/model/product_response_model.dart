@@ -10,15 +10,17 @@ class ProductResponseModel extends ProductsResponse {
     required super.responseTime,
     required super.error,
   });
-
   factory ProductResponseModel.fromJson(Map<String, dynamic> json) {
     return ProductResponseModel(
       products:
-          (json['data'] as List).map((e) => ProductModel.fromJson(e)).toList(),
+          (json['data'] as List?)
+              ?.map((e) => ProductModel.fromJson(Map<String, dynamic>.from(e)))
+              .toList() ??
+          [],
       pagination: PaginationModel.fromJson(json),
-      isSuccessful: json['isSuccessful'],
-      responseTime: json['responseTime'],
-      error: json['error'] ?? '',
+      isSuccessful: json['isSuccessful'] ?? false,
+      responseTime: json['responseTime']?.toString() ?? '',
+      error: json['error']?.toString() ?? '',
     );
   }
 }

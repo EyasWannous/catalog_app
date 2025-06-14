@@ -8,7 +8,19 @@ class UpdateProductUseCase {
 
   UpdateProductUseCase(this.repository);
 
-  Future<Either<Failure, Product>> call(int id, String name, String description, int categoryId) async {
-    return await repository.updateProduct(id, name, description, categoryId);
+  Future<Either<Failure, Product>> call(
+    int id,
+    String name,
+    String description,
+    String price,
+    String categoryId,
+  ) async {
+    return await repository.updateProduct(
+      id,
+      name,
+      description,
+      price,
+      categoryId,
+    );
   }
 }

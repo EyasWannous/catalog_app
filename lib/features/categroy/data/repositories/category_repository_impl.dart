@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:catalog_app/core/error/failure.dart';
 import 'package:catalog_app/core/network/network_info.dart';
 import 'package:catalog_app/features/categroy/data/datasources/remote/category_remote_data_source.dart';
@@ -91,10 +93,15 @@ class CategoryRepositoryImpl implements CategoryRepository {
   Future<Either<Failure, Category>> postCategory(
     String name,
     String description,
+    File image,
   ) async {
     try {
       if (await networkInfo.isConnected) {
-        var response = await remoteDataSource.postCategory(name, description);
+        var response = await remoteDataSource.postCategory(
+          name,
+          description,
+          image,
+        );
 
         return Right(response);
       }
@@ -105,14 +112,20 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<Either<Failure, Category>> updateCategory(
+  Future<Either<Failure, void>> updateCategory(
     int id,
     String name,
     String description,
+    File image,
   ) async {
     try {
       if (await networkInfo.isConnected) {
-        var response = await remoteDataSource.updateCategory(id, name, description);
+        var response = await remoteDataSource.updateCategory(
+          id,
+          name,
+          description,
+          image,
+        );
 
         return Right(response);
       }

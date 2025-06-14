@@ -1,3 +1,4 @@
+import 'package:catalog_app/core/constants/app_strings.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -43,11 +44,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      // Required for device_preview
+      title: AppStrings.appTitle.tr(),
+      locale: DevicePreview.locale(context),
       routerConfig: appRouter,
-      title: 'Catalog App',
-      useInheritedMediaQuery: true, // Required for device_preview
-      locale: DevicePreview.locale(context), // Required for device_preview
-      builder: DevicePreview.appBuilder, // Required for device_preview
+      builder: DevicePreview.appBuilder,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFFFC1D4)),
         useMaterial3: true,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:catalog_app/core/error/failure.dart';
 import 'package:catalog_app/features/categroy/domain/entities/category.dart';
 import 'package:catalog_app/features/categroy/domain/repositories/category_repository.dart';
@@ -8,7 +10,7 @@ class CreateCategoryUseCase {
 
   CreateCategoryUseCase(this.repository);
 
-  Future<Either<Failure, Category>> call(String name, String description) async {
-    return await repository.postCategory(name, description);
+  Future<Either<Failure, Category>> call(String name, String description, File image) async {
+    return await repository.postCategory(name, description, image);
   }
 }

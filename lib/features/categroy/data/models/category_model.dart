@@ -14,21 +14,27 @@ class CategoryModel extends Category {
   @HiveField(2)
   final String hiveDescription;
 
+  @HiveField(3)
+  final String? hiveImagePath; // Made nullable
+
   const CategoryModel({
     required this.hiveId,
     required this.hiveName,
     required this.hiveDescription,
+    this.hiveImagePath, // Now optional
   }) : super(
-    id: hiveId,
-    name: hiveName,
-    description: hiveDescription,
-  );
+          id: hiveId,
+          name: hiveName,
+          description: hiveDescription,
+          imagePath: hiveImagePath ?? '',
+        );
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
-      hiveId: json['id'],
-      hiveName: json['name'],
-      hiveDescription: json['description'],
+      hiveId: json['id'] as int? ?? 0, // Provide default value
+      hiveName: json['name'] as String? ?? '', // Provide default value
+      hiveDescription: json['description'] as String? ?? '', // Provide default value
+      hiveImagePath: json['imagePath'] as String?, // Can be null
     );
   }
 
@@ -37,6 +43,7 @@ class CategoryModel extends Category {
       'id': hiveId,
       'name': hiveName,
       'description': hiveDescription,
+      'imagePath': hiveImagePath, // Can be null
     };
   }
 }
