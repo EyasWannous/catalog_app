@@ -19,6 +19,6 @@ class NetworkInfoImpl implements NetworkInfo {
 
   @override
   Stream<ConnectivityResult> get connectivityStream {
-    return connectivity.onConnectivityChanged.expand((list) => list);
+    return connectivity.onConnectivityChanged;
   }
 }

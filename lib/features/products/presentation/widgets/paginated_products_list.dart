@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/category.dart';
-import '../widgets/categories_list.dart';
+import '../../domain/entities/product.dart';
+import '../widgets/products_grid.dart';
 
-class PaginatedCategoriesList extends StatefulWidget {
-  final List<Category> categories;
+class PaginatedProductsList extends StatefulWidget {
+  final List<Product> products;
   final bool isLoadingMore;
   final bool hasMore;
   final VoidCallback onEndReached;
+  final String? categoryTitle;
 
-  const PaginatedCategoriesList({
+  const PaginatedProductsList({
     super.key,
-    required this.categories,
+    required this.products,
     required this.isLoadingMore,
     required this.hasMore,
     required this.onEndReached,
+    this.categoryTitle,
   });
 
   @override
-  State<PaginatedCategoriesList> createState() => _PaginatedCategoriesListState();
+  State<PaginatedProductsList> createState() => _PaginatedProductsListState();
 }
 
-class _PaginatedCategoriesListState extends State<PaginatedCategoriesList> {
+class _PaginatedProductsListState extends State<PaginatedProductsList> {
   late final ScrollController _scrollController;
 
   @override
@@ -34,7 +36,6 @@ class _PaginatedCategoriesListState extends State<PaginatedCategoriesList> {
 
   void _onScroll() {
     final position = _scrollController.position;
-
 
     if (position.pixels >= position.maxScrollExtent - 200) {
       if (widget.hasMore && !widget.isLoadingMore) {
@@ -51,8 +52,8 @@ class _PaginatedCategoriesListState extends State<PaginatedCategoriesList> {
 
   @override
   Widget build(BuildContext context) {
-    return CategoriesList(
-      categories: widget.categories,
+    return ProductsGrid(
+      products: widget.products,
       scrollController: _scrollController,
       isLoadingMore: widget.isLoadingMore,
     );

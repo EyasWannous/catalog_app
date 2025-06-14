@@ -6,20 +6,62 @@ class ProductCard extends StatelessWidget {
   final String? title;
   final String? description;
   final String? price;
+  final double? rating;
   final VoidCallback? onTap;
   final bool showPrice;
   final bool showDescription;
+  final bool showRating;
 
   const ProductCard({
-    key,
+    super.key,
     required this.image,
     this.title,
     this.description,
     this.price,
+    this.rating,
     this.onTap,
-    this.showPrice = false,
+    this.showPrice = true,
     this.showDescription = true,
-  }) : super(key: key);
+    this.showRating = true,
+  });
+
+  Widget _buildRatingStars(BuildContext context, double rating) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ...List.generate(5, (index) {
+          if (index < rating.floor()) {
+            return Icon(
+              Icons.star,
+              size: ResponsiveUtils.getResponsiveIconSize(context, 12),
+              color: Colors.amber,
+            );
+          } else if (index < rating) {
+            return Icon(
+              Icons.star_half,
+              size: ResponsiveUtils.getResponsiveIconSize(context, 12),
+              color: Colors.amber,
+            );
+          } else {
+            return Icon(
+              Icons.star_border,
+              size: ResponsiveUtils.getResponsiveIconSize(context, 12),
+              color: Colors.grey[400],
+            );
+          }
+        }),
+        SizedBox(width: ResponsiveUtils.getResponsiveSpacing(context, 4)),
+        Text(
+          rating.toStringAsFixed(1),
+          style: TextStyle(
+            fontSize: 10 * ResponsiveUtils.getFontSizeMultiplier(context),
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +74,7 @@ class ProductCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 4,
               offset: Offset(0, 2),
             ),
@@ -142,7 +184,12 @@ class ProductCard extends StatelessWidget {
 
                     // Product Description (if enabled)
                     if (showDescription) ...[
-
+                      SizedBox(
+                        height: ResponsiveUtils.getResponsiveSpacing(
+                          context,
+                          4,
+                        ),
+                      ),
                       Text(
                         description ?? "Lorem ipsum dolor sit amet...",
                         style: TextStyle(
@@ -156,20 +203,44 @@ class ProductCard extends StatelessWidget {
                       ),
                     ],
 
-                    // Product Price (if enabled)
-                    if (showPrice && price != null) ...[
+                    // Rating and Price Row
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Rating (if enabled)
+                        if (showRating && rating != null) ...[
+                          SizedBox(
+                            height: ResponsiveUtils.getResponsiveSpacing(
+                              context,
+                              6,
+                            ),
+                          ),
+                          _buildRatingStars(context, rating!),
+                        ],
 
-                      Text(
-                        price!,
-                        style: TextStyle(
-                          fontSize:
-                              16 *
-                              ResponsiveUtils.getFontSizeMultiplier(context),
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFFC1D4),
-                        ),
-                      ),
-                    ],
+                        // Product Price (if enabled)
+                        if (showPrice && price != null) ...[
+                          SizedBox(
+                            height: ResponsiveUtils.getResponsiveSpacing(
+                              context,
+                              4,
+                            ),
+                          ),
+                          Text(
+                            price!,
+                            style: TextStyle(
+                              fontSize:
+                                  16 *
+                                  ResponsiveUtils.getFontSizeMultiplier(
+                                    context,
+                                  ),
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFFFC1D4),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ],
                 ),
               ),

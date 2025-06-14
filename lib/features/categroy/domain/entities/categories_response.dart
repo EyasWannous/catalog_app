@@ -1,7 +1,6 @@
 import 'category.dart';
 import 'package:equatable/equatable.dart';
 
-import 'category.dart';
 import 'pagination.dart';
 
 class CategoriesResponse extends Equatable {

@@ -4,15 +4,12 @@ import 'package:catalog_app/features/categroy/domain/entities/categories_respons
 
 class CategoriesResponseModel extends CategoriesResponse {
   const CategoriesResponseModel({
-    required List<CategoryModel> categories,
-    required PaginationModel pagination,
+    required List<CategoryModel> super.categories,
+    required PaginationModel super.pagination,
     required bool success,
-    required String responseTime,
+    required super.responseTime,
   }) : super(
-          categories: categories,
-          pagination: pagination,
           isSuccessful: success,
-          responseTime: responseTime,
         );
 
   factory CategoriesResponseModel.fromJson(Map<String, dynamic> json) {

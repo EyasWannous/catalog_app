@@ -1,6 +1,5 @@
 
 import 'package:equatable/equatable.dart';
-import 'package:catalog_app/features/categroy/data/models/categories_response_model.dart';
 
 import '../../domain/entities/category.dart';
 

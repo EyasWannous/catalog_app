@@ -3,9 +3,9 @@ import 'package:catalog_app/features/categroy/presentation/screen/paginated_cate
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../cubit/categories_cubit.dart';
 import '../cubit/categories_state.dart';
-import '../widgets/categories_list.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
@@ -13,11 +13,13 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<CategoriesCubit>()..getCategories(isInitialLoad: true),
+      create:
+          (context) =>
+              sl<CategoriesCubit>()..getCategories(isInitialLoad: true),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
-          title: "Categories",
+          title: AppStrings.categoriesTitle,
           onMenuPressed: () {},
           onSearchChanged: (value) {},
         ),
@@ -32,13 +34,25 @@ class CategoriesScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
                     const SizedBox(height: 16),
-                    Text(state.message, style: const TextStyle(fontSize: 16, color: Colors.red)),
+                    Text(
+                      state.message,
+                      style: const TextStyle(fontSize: 16, color: Colors.red),
+                    ),
                     const SizedBox(height: 16),
-                    ElevatedButton(onPressed: () {
-                      context.read<CategoriesCubit>().getCategories(isInitialLoad: true);
-                    }, child: const Text('Retry')),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<CategoriesCubit>().getCategories(
+                          isInitialLoad: true,
+                        );
+                      },
+                      child: Text(AppStrings.retry),
+                    ),
                   ],
                 ),
               );
@@ -68,8 +82,7 @@ class CategoriesScreen extends StatelessWidget {
 
             return const SizedBox.shrink();
           },
-        )
-        ,
+        ),
       ),
     );
   }

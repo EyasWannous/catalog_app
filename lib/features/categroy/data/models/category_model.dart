@@ -18,25 +18,17 @@ class CategoryModel extends Category {
     required this.hiveId,
     required this.hiveName,
     required this.hiveDescription,
-  }) : super(
-    id: hiveId,
-    name: hiveName,
-    description: hiveDescription,
-  );
+  }) : super(id: hiveId, name: hiveName, description: hiveDescription);
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
-      hiveId: json['id'],
-      hiveName: json['name'],
-      hiveDescription: json['description'],
+      hiveId: json['id'] is int ? json['id'] : int.parse(json['id'].toString()),
+      hiveName: json['name']?.toString() ?? '',
+      hiveDescription: json['description']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': hiveId,
-      'name': hiveName,
-      'description': hiveDescription,
-    };
+    return {'id': hiveId, 'name': hiveName, 'description': hiveDescription};
   }
 }

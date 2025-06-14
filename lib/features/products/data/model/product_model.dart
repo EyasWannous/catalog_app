@@ -1,71 +1,89 @@
+import 'package:catalog_app/features/products/domain/entities/product.dart';
 import 'package:hive/hive.dart';
-import 'package:catalog_app/features/products/domain/entities/product_entity.dart';
 
 part 'product_model.g.dart';
 
 @HiveType(typeId: 1)
-class ProductModel extends ProductEntity {
+class ProductModel extends Product {
   @HiveField(0)
-  final int id;
+  final int hiveId;
 
   @HiveField(1)
-  final String name;
+  final String hiveName;
 
   @HiveField(2)
-  final String description;
+  final String hiveDescription;
 
   @HiveField(3)
-  final String price;
+  final String hivePrice;
 
   @HiveField(4)
-  final int rating;
+  final dynamic _hiveRating; // Changed to dynamic to handle both int and double
 
   @HiveField(5)
-  final int categoryId;
+  final int hiveCategoryId;
 
-  ProductModel({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.price,
-    required this.rating,
-    required this.categoryId,
-  }) : super(
-    id: id,
-    name: name,
-    description: description,
-    price: price,
-    rating: rating,
-    categoryId: categoryId,
-  );
+  // Getter to safely convert rating to double
+  double get hiveRating {
+    if (_hiveRating is double) return _hiveRating;
+    if (_hiveRating is int) return _hiveRating.toDouble();
+    return 0.0;
+  }
+
+  const ProductModel({
+    required this.hiveId,
+    required this.hiveName,
+    required this.hiveDescription,
+    required this.hivePrice,
+    required double hiveRating,
+    required this.hiveCategoryId,
+  }) : _hiveRating = hiveRating,
+       super(
+         id: hiveId,
+         name: hiveName,
+         description: hiveDescription,
+         price: hivePrice,
+         rating: hiveRating,
+         categoryId: hiveCategoryId,
+       );
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      price: json['price'],
-      rating: json['rating'],
-      categoryId: json['categoryId'],
+      hiveId:
+          json['id'] is int
+              ? json['id']
+              : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      hiveName: json['name']?.toString() ?? '',
+      hiveDescription: json['description']?.toString() ?? '',
+      hivePrice: json['price']?.toString() ?? '0',
+      hiveRating:
+          json['rating'] is double
+              ? json['rating']
+              : double.tryParse(json['rating']?.toString() ?? '0') ?? 0.0,
+      hiveCategoryId:
+          json['categoryId'] is int
+              ? json['categoryId']
+              : int.tryParse(json['categoryId']?.toString() ?? '1') ?? 1,
     );
   }
-  factory ProductModel.fromEntity(ProductEntity entity) {
+
+  factory ProductModel.fromEntity(Product entity) {
     return ProductModel(
-      id: entity.id!,
-      name: entity.name!,
-      description: entity.description!,
-      price: entity.price!,
-      rating: entity.rating!,
-      categoryId: entity.categoryId!,
+      hiveId: entity.id,
+      hiveName: entity.name,
+      hiveDescription: entity.description,
+      hivePrice: entity.price,
+      hiveRating: entity.rating,
+      hiveCategoryId: entity.categoryId,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'description': description,
-    'price': price,
-    'rating': rating,
-    'categoryId': categoryId,
+    'id': hiveId,
+    'name': hiveName,
+    'description': hiveDescription,
+    'price': hivePrice,
+    'rating': hiveRating,
+    'categoryId': hiveCategoryId,
   };
 }

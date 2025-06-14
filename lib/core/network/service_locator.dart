@@ -1,19 +1,19 @@
 import 'package:catalog_app/features/products/data/datasource/product_local_data_source.dart';
 import 'package:catalog_app/features/products/data/datasource/product_remote_data_source.dart';
+import 'package:catalog_app/features/products/data/datasource/product_cache_manager.dart';
 import 'package:catalog_app/features/products/data/repository/product_repo_impl.dart';
 import 'package:catalog_app/features/products/domain/repository/product_repository.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_product_use_case.dart';
-import 'package:catalog_app/features/products/presentation/bloc/products_cubit.dart';
+import 'package:catalog_app/features/products/domain/usecase/get_single_product_use_case.dart';
+import 'package:catalog_app/features/products/presentation/cubit/productcubit/product_cubit.dart';
+import 'package:catalog_app/features/products/presentation/cubit/products_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-import '../../features/categroy/data/datasources/local/category_local_data_source.dart';
-import '../../features/categroy/data/models/category_model.dart';
-import '../../features/products/data/model/product_model.dart';
-import 'api_service.dart';
-import 'network_info.dart';
-import 'package:catalog_app/features/categroy/data/datasources/category_data_source.dart';
+import 'package:catalog_app/features/categroy/data/datasources/local/category_local_data_source.dart';
+import 'package:catalog_app/features/categroy/data/models/category_model.dart';
+import 'package:catalog_app/core/network/api_service.dart';
+import 'package:catalog_app/core/network/network_info.dart';
 import 'package:catalog_app/features/categroy/data/datasources/remote/category_remote_data_source.dart';
 import 'package:catalog_app/features/categroy/data/repositories/category_repository_impl.dart';
 import 'package:catalog_app/features/categroy/domain/repositories/category_repository.dart';
@@ -36,7 +36,7 @@ Future<void> init() async {
   sl.registerLazySingleton<ApiService>(() => ApiService(networkInfo: sl()));
 
   // Features - Category
-  sl.registerLazySingleton<CategoryDataSource>(
+  sl.registerLazySingleton<CategoryRemoteDataSource>(
     () => CategoryRemoteDataSourceImpl(sl()),
   );
   // Register the box
@@ -53,7 +53,9 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
-  sl.registerLazySingleton<GetCategories>(() => GetCategories(sl()));
+  sl.registerLazySingleton<GetCategoriesUseCase>(
+    () => GetCategoriesUseCase(sl()),
+  );
   sl.registerFactory<CategoriesCubit>(() => CategoriesCubit(sl()));
 
   // Features - Product
@@ -65,6 +67,9 @@ Future<void> init() async {
   sl.registerLazySingleton<ProductLocalDataSource>(
     () => ProductLocalDataSourceImpl(sl()),
   );
+  sl.registerLazySingleton<ProductCacheManager>(
+    () => ProductCacheManager(sl()),
+  );
   sl.registerLazySingleton<ProductRepository>(
     () => ProductRepoImpl(
       productRemoteDataSource: sl(),
@@ -73,7 +78,11 @@ Future<void> init() async {
     ),
   );
   sl.registerLazySingleton<GetProductsUseCase>(() => GetProductsUseCase(sl()));
+  sl.registerLazySingleton<GetSingleProductUseCase>(
+    () => GetSingleProductUseCase(sl()),
+  );
   sl.registerFactory<ProductsCubit>(() => ProductsCubit(sl()));
+  sl.registerFactory<ProductCubit>(() => ProductCubit(sl()));
 }
 
 /// Convenience getters for commonly used services

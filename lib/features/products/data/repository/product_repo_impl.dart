@@ -5,8 +5,8 @@ import 'package:catalog_app/features/products/data/datasource/product_local_data
 import 'package:catalog_app/features/products/data/datasource/product_remote_data_source.dart';
 import 'package:catalog_app/features/products/data/model/product_model.dart';
 import 'package:catalog_app/features/products/data/model/product_response_model.dart';
-import 'package:catalog_app/features/products/domain/entities/product_entity.dart';
-import 'package:catalog_app/features/products/domain/entities/product_response_entity.dart';
+import 'package:catalog_app/features/products/domain/entities/product.dart';
+import 'package:catalog_app/features/products/domain/entities/products_response.dart';
 import 'package:catalog_app/features/products/domain/repository/product_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -22,10 +22,18 @@ class ProductRepoImpl extends ProductRepository {
   });
 
   @override
-  Future<Either<Failure, ProductResponseEntity>> getProducts(String categoryId) async {
+  Future<Either<Failure, ProductsResponse>> getProducts(
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
     try {
       if (await networkInfo.isConnected) {
-        return await _getAndCacheProducts(categoryId);
+        return await _getAndCacheProducts(
+          categoryId,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
       } else {
         return await _getCachedProducts(categoryId);
       }
@@ -34,19 +42,40 @@ class ProductRepoImpl extends ProductRepository {
     }
   }
 
-  Future<Either<Failure, ProductResponseEntity>> _getAndCacheProducts(String categoryId) async {
-    final response = await productRemoteDataSource.getProducts(categoryId);
+  Future<Either<Failure, ProductsResponse>> _getAndCacheProducts(
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    final response = await productRemoteDataSource.getProducts(
+      categoryId,
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+    );
+
+    final productModels =
+        response.products.map((e) => ProductModel.fromEntity(e)).toList();
+
+    // Cache products by category
     await productLocalDataSource.cacheProductsByCategory(
       categoryId,
-      response.products.map((e) => ProductModel.fromEntity(e)).toList(),
+      productModels,
     );
+
+    // Also cache individual products for faster detail access
+    for (final productModel in productModels) {
+      await productLocalDataSource.cacheProduct(productModel);
+    }
+
     return Right(response);
   }
 
-  Future<Either<Failure, ProductResponseEntity>> _getCachedProducts(String categoryId) async {
+  Future<Either<Failure, ProductsResponse>> _getCachedProducts(
+    String categoryId,
+  ) async {
     try {
-      final cachedProducts = (await productLocalDataSource.getCachedProductsByCategory(categoryId))
-          ;
+      final cachedProducts = (await productLocalDataSource
+          .getCachedProductsByCategory(categoryId));
       return Right(
         ProductResponseModel(
           products: cachedProducts,
@@ -62,6 +91,110 @@ class ProductRepoImpl extends ProductRepository {
         ),
       );
     } catch (_) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Product>> getProduct(int id) async {
+    try {
+      // First, try to get from cache if it's valid
+      final cachedProduct = await productLocalDataSource.getCachedProduct(id);
+      if (cachedProduct != null) {
+        // Return cached product immediately for better performance
+        return Right(cachedProduct);
+      }
+
+      // If not in cache or expired, fetch from network only if connected
+      if (await networkInfo.isConnected) {
+        final response = await productRemoteDataSource.getProduct(id);
+
+        // Cache the fetched product for future use
+        await productLocalDataSource.cacheProduct(
+          ProductModel.fromEntity(response),
+        );
+
+        return Right(response);
+      } else {
+        // If offline and no valid cache, return offline failure
+        return Left(OfflineFailure());
+      }
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Product>> postProduct(
+    String name,
+    String description,
+    String categoryId,
+  ) async {
+    try {
+      if (await networkInfo.isConnected) {
+        var response = await productRemoteDataSource.postProduct(
+          name,
+          description,
+          categoryId,
+        );
+
+        await productLocalDataSource.invalidateCache();
+
+        return Right(response);
+      }
+      return Left(OfflineFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Product>> updateProduct(
+    int id,
+    String name,
+    String description,
+    String categoryId,
+  ) async {
+    try {
+      if (await networkInfo.isConnected) {
+        final response = await productRemoteDataSource.updateProduct(
+          id,
+          name,
+          description,
+          categoryId,
+        );
+
+        // Remove the specific product from cache and invalidate category cache
+        await productLocalDataSource.removeCachedProduct(id);
+        await productLocalDataSource.invalidateCache();
+
+        // Cache the updated product
+        await productLocalDataSource.cacheProduct(
+          ProductModel.fromEntity(response),
+        );
+
+        return Right(response);
+      }
+      return Left(OfflineFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteProduct(int id) async {
+    try {
+      if (await networkInfo.isConnected) {
+        final response = await productRemoteDataSource.deleteProduct(id);
+
+        // Remove the specific product from cache and invalidate category cache
+        await productLocalDataSource.removeCachedProduct(id);
+        await productLocalDataSource.invalidateCache();
+
+        return Right(response);
+      }
+      return Left(OfflineFailure());
+    } catch (e) {
       return Left(ServerFailure());
     }
   }

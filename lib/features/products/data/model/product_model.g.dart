@@ -16,13 +16,23 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
+
+    // Handle rating conversion from dynamic to double
+    final ratingValue = fields[4];
+    double rating = 0.0;
+    if (ratingValue is double) {
+      rating = ratingValue;
+    } else if (ratingValue is int) {
+      rating = ratingValue.toDouble();
+    }
+
     return ProductModel(
-      id: fields[0] as int,
-      name: fields[1] as String,
-      description: fields[2] as String,
-      price: fields[3] as String,
-      rating: fields[4] as int,
-      categoryId: fields[5] as int,
+      hiveId: fields[0] as int,
+      hiveName: fields[1] as String,
+      hiveDescription: fields[2] as String,
+      hivePrice: fields[3] as String,
+      hiveRating: rating,
+      hiveCategoryId: fields[5] as int,
     );
   }
 
@@ -31,17 +41,17 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
     writer
       ..writeByte(6)
       ..writeByte(0)
-      ..write(obj.id)
+      ..write(obj.hiveId)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.hiveName)
       ..writeByte(2)
-      ..write(obj.description)
+      ..write(obj.hiveDescription)
       ..writeByte(3)
-      ..write(obj.price)
+      ..write(obj.hivePrice)
       ..writeByte(4)
-      ..write(obj.rating)
+      ..write(obj._hiveRating)
       ..writeByte(5)
-      ..write(obj.categoryId);
+      ..write(obj.hiveCategoryId);
   }
 
   @override

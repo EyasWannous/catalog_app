@@ -4,7 +4,7 @@ import '../../domain/usecases/get_categories.dart';
 import 'categories_state.dart';
 
 class CategoriesCubit extends Cubit<CategoriesState> {
-  final GetCategories _getCategories;
+  final GetCategoriesUseCase _getCategories;
 
   int _currentPage = 1;
   bool _isFetching = false;
@@ -40,31 +40,29 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     }
 
     try {
-      final response = await _getCategories(
+      final result = await _getCategories(
         pageNumber: _currentPage,
         pageSize: _pageSize,
       );
+      result.fold(
+        (failure) => emit(CategoriesError("Failed to load: $failure")),
+        (response) {
+          final newCategories = response.categories;
 
-      if (response.isSuccessful) {
-        final newCategories = response.categories;
+          _categories.addAll(newCategories);
+          _hasMore = newCategories.length == _pageSize;
 
-        _categories.addAll(newCategories);
-        _hasMore = newCategories.length == _pageSize;
+          if (_hasMore) _currentPage++;
 
-
-
-        if (_hasMore) _currentPage++;
-
-        emit(
-          CategoriesLoaded(
-            categories: List.from(_categories),
-            isLoadingMore: false,
-            hasMore: _hasMore,
-          ),
-        );
-      } else {
-        emit(CategoriesError("Failed to load: ${response.responseTime}"));
-      }
+          emit(
+            CategoriesLoaded(
+              categories: List.from(_categories),
+              isLoadingMore: false,
+              hasMore: _hasMore,
+            ),
+          );
+        },
+      );
     } catch (e) {
       emit(CategoriesError("Exception: $e"));
     } finally {

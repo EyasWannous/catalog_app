@@ -8,7 +8,6 @@ class CategoriesList extends StatelessWidget {
   final ScrollController scrollController;
   final bool isLoadingMore;
 
-
    const CategoriesList({
     super.key,
     required this.categories,
