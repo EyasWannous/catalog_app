@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Responsive utility class to handle different screen sizes
 class ResponsiveUtils {
   static const double mobileBreakpoint = 600;
-  static const double tabletBreakpoint = 900;
+  static const double tabletBreakpoint = 1000;
   static const double desktopBreakpoint = 1200;
 
   /// Check if the current screen is mobile
@@ -29,7 +29,7 @@ class ResponsiveUtils {
     } else if (isTablet(context)) {
       return const EdgeInsets.symmetric(horizontal: 32);
     } else {
-      return const EdgeInsets.symmetric(horizontal: 64);
+      return const EdgeInsets.symmetric(horizontal: 34);
     }
   }
 
@@ -66,9 +66,9 @@ class ResponsiveUtils {
     if (isMobile(context)) {
       return 2;
     } else if (isTablet(context)) {
-      return 3;
+      return 2;
     } else {
-      return 4;
+      return 2;
     }
   }
 

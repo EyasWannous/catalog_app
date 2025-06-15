@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:catalog_app/core/error/exception.dart';
 import 'package:catalog_app/core/network/api_service.dart';
 import 'package:catalog_app/core/utils/logger.dart';
@@ -10,8 +12,17 @@ abstract class CategoryRemoteDataSource {
     int? pageSize,
   });
   Future<CategoryModel> getCategory(int id);
-  Future<CategoryModel> postCategory(String name, String description);
-  Future<CategoryModel> updateCategory(int id, String name, String description);
+  Future<CategoryModel> postCategory(
+    String name,
+    String description,
+    File image,
+  );
+  Future<void> updateCategory(
+    int id,
+    String name,
+    String description,
+    File image,
+  );
   Future<void> deleteCategory(int id);
 }
 
@@ -32,10 +43,10 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
           'pageSize': pageSize ?? 10,
         },
       );
-      AppLogger.info('Categories response: ${response.toString()}');
+      AppLogger.info(response.toString());
       return CategoriesResponseModel.fromJson(response.data);
     } catch (e) {
-      AppLogger.error('Error getting categories', e);
+      AppLogger.error(e.toString());
       throw ServerException();
     }
   }
@@ -45,10 +56,10 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
     try {
       final response = await apiService.delete('/Categories/$id');
 
-      AppLogger.info('Delete category response: ${response.toString()}');
+      AppLogger.info(response.toString());
       return;
     } catch (e) {
-      AppLogger.error('Error deleting category', e);
+      AppLogger.error(e.toString());
       throw ServerException();
     }
   }
@@ -58,58 +69,53 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
     try {
       final response = await apiService.get('/Categories/$id');
 
-      AppLogger.info('Get category response: ${response.toString()}');
+      AppLogger.info(response.toString());
       return CategoryModel.fromJson(response.data);
     } catch (e) {
-      AppLogger.error('Error getting category', e);
+      AppLogger.error(e.toString());
       throw ServerException();
     }
   }
 
   @override
-  Future<CategoryModel> postCategory(String name, String description) async {
-    var body = CategoryModel(
-      hiveId: 0,
-      hiveName: name,
-      hiveDescription: description,
-    );
-
+  Future<CategoryModel> postCategory(
+    String name,
+    String description,
+    File image,
+  ) async {
     try {
-      final response = await apiService.post(
+      final response = await apiService.uploadFile(
         '/Categories',
-        data: body.toJson(),
+        image.path,
+        data: {'Id': 0, 'Name': name, 'Description': description},
       );
 
-      AppLogger.info('Post category response: ${response.toString()}');
+      AppLogger.info(response.toString());
       return CategoryModel.fromJson(response.data);
     } catch (e) {
-      AppLogger.error('Error posting category', e);
+      AppLogger.error(e.toString());
       throw ServerException();
     }
   }
 
   @override
-  Future<CategoryModel> updateCategory(
+  Future<void> updateCategory(
     int id,
     String name,
     String description,
+    File image,
   ) async {
-    var body = CategoryModel(
-      hiveId: id,
-      hiveName: name,
-      hiveDescription: description,
-    );
-
     try {
-      final response = await apiService.put(
-        '/Categories/$id',
-        data: body.toJson(),
+      final response = await apiService.updateUploadedFile(
+        '/Categories',
+        image.path,
+        data: {'Id': id, 'Name': name, 'Description': description},
       );
 
-      AppLogger.info('Update category response: ${response.toString()}');
-      return CategoryModel.fromJson(response.data);
+      AppLogger.info(response.toString());
+      return;
     } catch (e) {
-      AppLogger.error('Error updating category', e);
+      AppLogger.error(e.toString());
       throw ServerException();
     }
   }

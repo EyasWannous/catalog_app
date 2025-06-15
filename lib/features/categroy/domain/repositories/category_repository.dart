@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:catalog_app/core/error/failure.dart';
 import 'package:catalog_app/features/categroy/domain/entities/categories_response.dart';
 import 'package:catalog_app/features/categroy/domain/entities/category.dart';
@@ -9,11 +11,13 @@ abstract class CategoryRepository {
   Future<Either<Failure, Category>> postCategory(
     String name,
     String description,
+    File image,
   );
-  Future<Either<Failure, Category>> updateCategory(
+  Future<Either<Failure, void>> updateCategory(
     int id,
     String name,
     String description,
+    File image,
   );
   Future<Either<Failure, void>> deleteCategory(int id);
 }

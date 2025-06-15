@@ -10,7 +10,6 @@ class ProductResponseModel extends ProductsResponse {
     required super.responseTime,
     required super.error,
   });
-
   factory ProductResponseModel.fromJson(Map<String, dynamic> json) {
     return ProductResponseModel(
       products:

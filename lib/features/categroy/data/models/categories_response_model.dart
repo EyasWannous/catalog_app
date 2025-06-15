@@ -8,9 +8,7 @@ class CategoriesResponseModel extends CategoriesResponse {
     required PaginationModel super.pagination,
     required bool success,
     required super.responseTime,
-  }) : super(
-          isSuccessful: success,
-        );
+  }) : super(isSuccessful: success);
 
   factory CategoriesResponseModel.fromJson(Map<String, dynamic> json) {
     return CategoriesResponseModel(
@@ -25,7 +23,9 @@ class CategoriesResponseModel extends CategoriesResponse {
 
   Map<String, dynamic> toJson() {
     return {
-      'categories': categories.map((e) => (e as CategoryModel).toJson()).toList(),
+      'categories': categories
+          .map((e) => (e as CategoryModel).toJson())
+          .toList(),
       'pagination': (pagination as PaginationModel).toJson(),
       'success': isSuccessful,
       'responseTime': responseTime,

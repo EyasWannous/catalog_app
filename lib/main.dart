@@ -1,29 +1,40 @@
-import 'package:catalog_app/core/network/service_locator.dart';
-import 'package:catalog_app/core/route/app_router.dart';
+import 'package:catalog_app/core/constants/app_strings.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:flutter/foundation.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'core/constants/app_strings.dart';
+
+import 'core/network/service_locator.dart';
+import 'core/route/app_router.dart';
 import 'features/categroy/data/models/category_model.dart';
 import 'features/products/data/model/product_model.dart';
 
 Future<void> initHive() async {
   await Hive.initFlutter();
-  Hive.registerAdapter(CategoryModelAdapter()); // Required for Hive
+  Hive.registerAdapter(CategoryModelAdapter());
   await Hive.openBox<CategoryModel>('categoriesBox');
 
   Hive.registerAdapter(ProductModelAdapter());
-  await Hive.openBox('productsBox'); // Open the box without specifying the type
+  await Hive.openBox('productsBox');
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initHive();
   await init();
+  await EasyLocalization.ensureInitialized();
 
   runApp(
-    DevicePreview(enabled: !kReleaseMode, builder: (context) => const MyApp()),
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('ar'), Locale('de')],
+      path: 'assets/localization',
+      fallbackLocale: const Locale('en'),
+      child: DevicePreview(
+        enabled: !kReleaseMode,
+        builder: (context) => const MyApp(),
+      ),
+    ),
   );
 }
 
@@ -33,11 +44,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: appRouter,
-      title: AppStrings.appTitle,
-
-      locale: DevicePreview.locale(context),
       // Required for device_preview
+      title: AppStrings.appTitle.tr(),
+      locale: DevicePreview.locale(context),
+      routerConfig: appRouter,
       builder: DevicePreview.appBuilder,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFFFC1D4)),
@@ -46,5 +56,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:catalog_app/core/error/failure.dart';
 import 'package:catalog_app/core/network/network_info.dart';
 import 'package:catalog_app/features/categroy/domain/entities/pagination.dart';
@@ -5,6 +6,7 @@ import 'package:catalog_app/features/products/data/datasource/product_local_data
 import 'package:catalog_app/features/products/data/datasource/product_remote_data_source.dart';
 import 'package:catalog_app/features/products/data/model/product_model.dart';
 import 'package:catalog_app/features/products/data/model/product_response_model.dart';
+import 'package:catalog_app/features/products/domain/entities/attachment.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
 import 'package:catalog_app/features/products/domain/entities/products_response.dart';
 import 'package:catalog_app/features/products/domain/repository/product_repository.dart';
@@ -14,7 +16,6 @@ class ProductRepoImpl extends ProductRepository {
   final ProductRemoteDataSource productRemoteDataSource;
   final ProductLocalDataSource productLocalDataSource;
   final NetworkInfo networkInfo;
-
   ProductRepoImpl({
     required this.productRemoteDataSource,
     required this.productLocalDataSource,
@@ -125,34 +126,11 @@ class ProductRepoImpl extends ProductRepository {
   }
 
   @override
-  Future<Either<Failure, Product>> postProduct(
-    String name,
-    String description,
-    String categoryId,
-  ) async {
-    try {
-      if (await networkInfo.isConnected) {
-        var response = await productRemoteDataSource.postProduct(
-          name,
-          description,
-          categoryId,
-        );
-
-        await productLocalDataSource.invalidateCache();
-
-        return Right(response);
-      }
-      return Left(OfflineFailure());
-    } catch (e) {
-      return Left(ServerFailure());
-    }
-  }
-
-  @override
   Future<Either<Failure, Product>> updateProduct(
     int id,
     String name,
     String description,
+    String price,
     String categoryId,
   ) async {
     try {
@@ -161,6 +139,7 @@ class ProductRepoImpl extends ProductRepository {
           id,
           name,
           description,
+          price,
           categoryId,
         );
 
@@ -192,6 +171,98 @@ class ProductRepoImpl extends ProductRepository {
         await productLocalDataSource.invalidateCache();
 
         return Right(response);
+      }
+      return Left(OfflineFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  // New methods for proper backend integration
+  @override
+  Future<Either<Failure, Product>> createProductWithImages(
+    String name,
+    String description,
+    String price,
+    String categoryId,
+    List<File> images,
+  ) async {
+    try {
+      if (await networkInfo.isConnected) {
+        final response = await productRemoteDataSource.createProductWithImages(
+          name,
+          description,
+          price,
+          categoryId,
+          images,
+        );
+
+        await productLocalDataSource.invalidateCache();
+
+        return Right(response);
+      }
+      return Left(OfflineFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Attachment>> createAttachment(
+    int productId,
+    File imageFile,
+  ) async {
+    try {
+      if (await networkInfo.isConnected) {
+        final response = await productRemoteDataSource.createAttachment(
+          productId,
+          imageFile,
+        );
+
+        // Invalidate cache to refresh product data
+        await productLocalDataSource.removeCachedProduct(productId);
+        await productLocalDataSource.invalidateCache();
+
+        return Right(response);
+      }
+      return Left(OfflineFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAttachment(int attachmentId) async {
+    try {
+      if (await networkInfo.isConnected) {
+        await productRemoteDataSource.deleteAttachment(attachmentId);
+
+        // Invalidate cache to refresh product data
+        await productLocalDataSource.invalidateCache();
+
+        return const Right(null);
+      }
+      return Left(OfflineFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAttachments(
+    List<int> attachmentIds,
+  ) async {
+    try {
+      if (await networkInfo.isConnected) {
+        // Delete each attachment individually
+        for (final attachmentId in attachmentIds) {
+          await productRemoteDataSource.deleteAttachment(attachmentId);
+        }
+
+        // Invalidate cache to refresh product data
+        await productLocalDataSource.invalidateCache();
+
+        return const Right(null);
       }
       return Left(OfflineFailure());
     } catch (e) {

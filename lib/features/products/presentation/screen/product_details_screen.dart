@@ -1,20 +1,29 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/route/app_routes.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../cubit/productcubit/product_cubit.dart';
+import '../cubit/products_cubit.dart';
 import '../widgets/widgets.dart';
 
-class ProductScreen extends StatefulWidget {
+class ProductDetailsScreen extends StatefulWidget {
   final int productId;
+  final bool isAdmin;
 
-  const ProductScreen({super.key, required this.productId});
+  const ProductDetailsScreen({
+    super.key,
+    required this.productId,
+    this.isAdmin = true,
+  });
 
   @override
-  State<ProductScreen> createState() => _ProductScreenState();
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
 }
 
-class _ProductScreenState extends State<ProductScreen>
+class _ProductDetailsScreenState extends State<ProductDetailsScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -92,11 +101,16 @@ class _ProductScreenState extends State<ProductScreen>
         if (state is ProductLoaded) {
           final product = state.product;
           final cubit = context.read<ProductCubit>();
-          final images = cubit.offers;
+          final images =
+              product.attachments.isNotEmpty
+                  ? product.attachments
+                      .map((attachment) => attachment.path)
+                      .toList()
+                  : ['placeholder']; // Fallback for products without images
 
           return Scaffold(
             backgroundColor: Colors.white,
-            appBar: const CustomAppBar(),
+            appBar: CustomAppBar(title: product.name,showSearch: false,showDrawer: false,),
             body: SingleChildScrollView(
               child: Container(
                 constraints: BoxConstraints(
@@ -108,6 +122,14 @@ class _ProductScreenState extends State<ProductScreen>
                       images: images,
                       fadeAnimation: _fadeAnimation,
                       slideAnimation: _slideAnimation,
+                      isAdmin: widget.isAdmin,
+                      product: product, // Pass the product for AdminMenu
+                      onImageDeleted: (index) {
+                        if (index >= 0 && index < product.attachments.length) {
+                          final attachmentId = product.attachments[index].id;
+                          cubit.deleteAttachment(attachmentId);
+                        }
+                      },
                     ),
                     ProductDetailsSection(
                       product: product,

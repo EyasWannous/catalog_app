@@ -1,16 +1,18 @@
+import 'package:catalog_app/core/constants/api_constants.dart';
 import 'package:dio/dio.dart';
-import '../constants/api_constants.dart';
 import 'network_info.dart';
 
 class ApiService {
   late final Dio _dio;
   final NetworkInfo networkInfo;
-  static const String baseUrl = ApiConstants.baseUrl;
-  static const int connectTimeout = ApiConstants.connectTimeout;
-  static const int receiveTimeout = ApiConstants.receiveTimeout;
+  static const String baseUrl =
+      ApiConstants.baseUrl; // Replace with your API base URL
+  static const int connectTimeout = ApiConstants.connectTimeout; // 30 seconds
+  static const int receiveTimeout = ApiConstants.receiveTimeout; // 30 seconds
 
   ApiService({required this.networkInfo}) {
     _dio = Dio();
+
     _setupDio();
   }
 
@@ -22,6 +24,7 @@ class ApiService {
       headers: ApiConstants.defaultHeaders,
     );
 
+    // Add interceptors
     _dio.interceptors.add(
       LogInterceptor(
         requestBody: true,
@@ -34,6 +37,7 @@ class ApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          // Check network connectivity before making request
           if (!await networkInfo.isConnected) {
             return handler.reject(
               DioException(
@@ -196,11 +200,78 @@ class ApiService {
   }) async {
     try {
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(filePath, filename: fileName),
+        'image': await MultipartFile.fromFile(filePath, filename: fileName),
         if (data != null) ...data,
       });
 
       return await _dio.post<T>(
+        path,
+        data: formData,
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+        onSendProgress: onSendProgress,
+      );
+    } on DioException catch (e) {
+      _handleError(e);
+      rethrow;
+    }
+  }
+
+  // Upload multiple files
+  Future<Response<T>> uploadMultipleFiles<T>(
+    String path,
+    List<String> filePaths, {
+    List<String>? fileNames,
+    Map<String, dynamic>? data,
+    ProgressCallback? onSendProgress,
+  }) async {
+    try {
+      final Map<String, dynamic> formDataMap = {};
+
+      // Add multiple files
+      for (int i = 0; i < filePaths.length; i++) {
+        final fileName = fileNames != null && i < fileNames.length
+            ? fileNames[i]
+            : null;
+        formDataMap['Images'] = await MultipartFile.fromFile(
+          filePaths[i],
+          filename: fileName,
+        );
+      }
+
+      // Add other data
+      if (data != null) {
+        formDataMap.addAll(data);
+      }
+
+      final formData = FormData.fromMap(formDataMap);
+
+      return await _dio.post<T>(
+        path,
+        data: formData,
+        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+        onSendProgress: onSendProgress,
+      );
+    } on DioException catch (e) {
+      _handleError(e);
+      rethrow;
+    }
+  }
+
+    // Upload file
+  Future<Response<T>> updateUploadedFile<T>(
+    String path,
+    String filePath, {
+    String? fileName,
+    Map<String, dynamic>? data,
+    ProgressCallback? onSendProgress,
+  }) async {
+    try {
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(filePath, filename: fileName),
+        if (data != null) ...data,
+      });
+
+      return await _dio.put<T>(
         path,
         data: formData,
         options: Options(headers: {'Content-Type': 'multipart/form-data'}),

@@ -20,19 +20,22 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
       hiveId: fields[0] as int,
       hiveName: fields[1] as String,
       hiveDescription: fields[2] as String,
+      hiveImagePath: fields[3] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CategoryModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.hiveId)
       ..writeByte(1)
       ..write(obj.hiveName)
       ..writeByte(2)
-      ..write(obj.hiveDescription);
+      ..write(obj.hiveDescription)
+      ..writeByte(3)
+      ..write(obj.hiveImagePath);
   }
 
   @override

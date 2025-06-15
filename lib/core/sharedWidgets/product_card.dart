@@ -6,11 +6,9 @@ class ProductCard extends StatelessWidget {
   final String? title;
   final String? description;
   final String? price;
-  final double? rating;
   final VoidCallback? onTap;
   final bool showPrice;
   final bool showDescription;
-  final bool showRating;
 
   const ProductCard({
     super.key,
@@ -18,50 +16,48 @@ class ProductCard extends StatelessWidget {
     this.title,
     this.description,
     this.price,
-    this.rating,
     this.onTap,
     this.showPrice = true,
     this.showDescription = true,
-    this.showRating = true,
   });
 
-  Widget _buildRatingStars(BuildContext context, double rating) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ...List.generate(5, (index) {
-          if (index < rating.floor()) {
-            return Icon(
-              Icons.star,
-              size: ResponsiveUtils.getResponsiveIconSize(context, 12),
-              color: Colors.amber,
-            );
-          } else if (index < rating) {
-            return Icon(
-              Icons.star_half,
-              size: ResponsiveUtils.getResponsiveIconSize(context, 12),
-              color: Colors.amber,
-            );
-          } else {
-            return Icon(
-              Icons.star_border,
-              size: ResponsiveUtils.getResponsiveIconSize(context, 12),
-              color: Colors.grey[400],
-            );
-          }
-        }),
-        SizedBox(width: ResponsiveUtils.getResponsiveSpacing(context, 4)),
-        Text(
-          rating.toStringAsFixed(1),
-          style: TextStyle(
-            fontSize: 10 * ResponsiveUtils.getFontSizeMultiplier(context),
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildRatingStars(BuildContext context, double rating) {
+  //   return Row(
+  //     mainAxisSize: MainAxisSize.min,
+  //     children: [
+  //       ...List.generate(5, (index) {
+  //         if (index < rating.floor()) {
+  //           return Icon(
+  //             Icons.star,
+  //             size: ResponsiveUtils.getResponsiveIconSize(context, 12),
+  //             color: Colors.amber,
+  //           );
+  //         } else if (index < rating) {
+  //           return Icon(
+  //             Icons.star_half,
+  //             size: ResponsiveUtils.getResponsiveIconSize(context, 12),
+  //             color: Colors.amber,
+  //           );
+  //         } else {
+  //           return Icon(
+  //             Icons.star_border,
+  //             size: ResponsiveUtils.getResponsiveIconSize(context, 12),
+  //             color: Colors.grey[400],
+  //           );
+  //         }
+  //       }),
+  //       SizedBox(width: ResponsiveUtils.getResponsiveSpacing(context, 4)),
+  //       Text(
+  //         rating.toStringAsFixed(1),
+  //         style: TextStyle(
+  //           fontSize: 10 * ResponsiveUtils.getFontSizeMultiplier(context),
+  //           color: Colors.grey[600],
+  //           fontWeight: FontWeight.w500,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -130,11 +126,10 @@ class ProductCard extends StatelessWidget {
                         color: Colors.grey[200],
                         child: Center(
                           child: CircularProgressIndicator(
-                            value:
-                                loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                : null,
                             strokeWidth: 2,
                             color: Color(0xFFFFC1D4),
                           ),
@@ -145,7 +140,6 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
             ),
-
             // Product Details
             Expanded(
               flex: 3,
@@ -208,15 +202,15 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Rating (if enabled)
-                        if (showRating && rating != null) ...[
-                          SizedBox(
-                            height: ResponsiveUtils.getResponsiveSpacing(
-                              context,
-                              6,
-                            ),
-                          ),
-                          _buildRatingStars(context, rating!),
-                        ],
+                        // if (showRating && rating != null) ...[
+                        //   SizedBox(
+                        //     height: ResponsiveUtils.getResponsiveSpacing(
+                        //       context,
+                        //       6,
+                        //     ),
+                        //   ),
+                        //   _buildRatingStars(context, rating!),
+                        // ],
 
                         // Product Price (if enabled)
                         if (showPrice && price != null) ...[

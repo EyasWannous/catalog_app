@@ -8,6 +8,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final ValueChanged<String>? onSearchChanged;
   final TextEditingController? searchController;
   final bool showSearch;
+  final bool showDrawer;
   final Color backgroundColor;
   final Color textColor;
 
@@ -19,6 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onSearchChanged,
     this.searchController,
     this.showSearch = true,
+    this.showDrawer=true,
     this.backgroundColor = const Color(0xFFFFC1D4),
     this.textColor = Colors.white,
   });
@@ -50,16 +52,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   SizedBox(
                     width: ResponsiveUtils.getResponsiveSpacing(context, 8),
                   ),
-                  Text(
-                    title ?? "Logo",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                      fontSize:
-                          16 * ResponsiveUtils.getFontSizeMultiplier(context),
+                  Expanded(
+                    flex: 4,
+                    child: Text(
+                      title ?? "Logo",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                        fontSize:
+                            16 * ResponsiveUtils.getFontSizeMultiplier(context),
+
+                      ),
+                      maxLines: 1, // Ensures text stays on one line
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Spacer(),
+                  if(showDrawer)
                   GestureDetector(
                     onTap: onMenuPressed,
                     child: Icon(
@@ -82,7 +91,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 4,
                         offset: Offset(0, 2),
                       ),

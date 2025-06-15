@@ -1,3 +1,4 @@
+import 'package:catalog_app/features/products/data/model/attachment_model.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
 import 'package:hive/hive.dart';
 
@@ -18,52 +19,43 @@ class ProductModel extends Product {
   final String hivePrice;
 
   @HiveField(4)
-  final dynamic _hiveRating; // Changed to dynamic to handle both int and double
-
-  @HiveField(5)
   final int hiveCategoryId;
 
-  // Getter to safely convert rating to double
-  double get hiveRating {
-    if (_hiveRating is double) return _hiveRating;
-    if (_hiveRating is int) return _hiveRating.toDouble();
-    return 0.0;
-  }
+  @HiveField(5)
+  final List<AttachmentModel> hiveAttachments;
 
   const ProductModel({
     required this.hiveId,
     required this.hiveName,
     required this.hiveDescription,
     required this.hivePrice,
-    required double hiveRating,
     required this.hiveCategoryId,
-  }) : _hiveRating = hiveRating,
-       super(
-         id: hiveId,
-         name: hiveName,
-         description: hiveDescription,
-         price: hivePrice,
-         rating: hiveRating,
-         categoryId: hiveCategoryId,
-       );
+    required this.hiveAttachments,
+  }) : super(
+          id: hiveId,
+          name: hiveName,
+          description: hiveDescription,
+          price: hivePrice,
+          categoryId: hiveCategoryId,
+          attachments: hiveAttachments,
+        );
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
+    final attachmentsJson = json['attachments'] as List<dynamic>? ?? [];
+
     return ProductModel(
-      hiveId:
-          json['id'] is int
-              ? json['id']
-              : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      hiveId: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       hiveName: json['name']?.toString() ?? '',
       hiveDescription: json['description']?.toString() ?? '',
       hivePrice: json['price']?.toString() ?? '0',
-      hiveRating:
-          json['rating'] is double
-              ? json['rating']
-              : double.tryParse(json['rating']?.toString() ?? '0') ?? 0.0,
-      hiveCategoryId:
-          json['categoryId'] is int
-              ? json['categoryId']
-              : int.tryParse(json['categoryId']?.toString() ?? '1') ?? 1,
+      hiveCategoryId: json['categoryId'] is int
+          ? json['categoryId']
+          : int.tryParse(json['categoryId']?.toString() ?? '1') ?? 1,
+      hiveAttachments: attachmentsJson
+          .map((e) => AttachmentModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -73,17 +65,21 @@ class ProductModel extends Product {
       hiveName: entity.name,
       hiveDescription: entity.description,
       hivePrice: entity.price,
-      hiveRating: entity.rating,
       hiveCategoryId: entity.categoryId,
+      hiveAttachments: entity.attachments
+          .map((x) => x is AttachmentModel
+              ? x
+              : AttachmentModel.fromEntity(x))
+          .toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': hiveId,
-    'name': hiveName,
-    'description': hiveDescription,
-    'price': hivePrice,
-    'rating': hiveRating,
-    'categoryId': hiveCategoryId,
-  };
+        'id': hiveId,
+        'name': hiveName,
+        'description': hiveDescription,
+        'price': hivePrice,
+        'categoryId': hiveCategoryId,
+        'attachments': hiveAttachments.map((e) => e.toJson()).toList(),
+      };
 }
