@@ -5,24 +5,35 @@ import 'package:catalog_app/core/network/api_service.dart';
 import 'package:catalog_app/core/utils/logger.dart';
 import 'package:catalog_app/features/categroy/data/models/categories_response_model.dart';
 import 'package:catalog_app/features/categroy/data/models/category_model.dart';
+import 'package:catalog_app/features/categroy/data/models/pagination_model.dart';
 
 abstract class CategoryRemoteDataSource {
   Future<CategoriesResponseModel> getCategories({
     int? pageNumber,
     int? pageSize,
   });
+
+  // ✅ NEW: Get categories filtered by parentId
+  Future<CategoriesResponseModel> getCategoriesByParent({
+    int? parentId,
+    int? pageNumber,
+    int? pageSize,
+  });
+
   Future<CategoryModel> getCategory(int id);
   Future<CategoryModel> postCategory(
     String name,
     String description,
-    File image,
-  );
+    File image, {
+    int? parentId,
+  });
   Future<void> updateCategory(
     int id,
     String name,
     String description,
-    File image,
-  );
+    File image, {
+    int? parentId,
+  });
   Future<void> deleteCategory(int id);
 }
 
@@ -47,6 +58,53 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       return CategoriesResponseModel.fromJson(response.data);
     } catch (e) {
       AppLogger.error(e.toString());
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<CategoriesResponseModel> getCategoriesByParent({
+    int? parentId,
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    try {
+      AppLogger.info('Fetching categories with parentId: $parentId');
+
+      // For now, we'll use the same endpoint and filter client-side
+      // In a real implementation, the API should support parentId filtering
+      final response = await apiService.get(
+        '/Categories',
+        queryParameters: {
+          'pageNumber': pageNumber ?? 1,
+          'pageSize': pageSize ?? 10,
+        },
+      );
+      AppLogger.info('Get categories by parent response: ${response.toString()}');
+
+      final categoriesResponse = CategoriesResponseModel.fromJson(response.data);
+      AppLogger.info('Total categories fetched: ${categoriesResponse.categories.length}');
+
+      // Filter categories by parentId
+      final filteredCategories = categoriesResponse.categories.where((category) {
+        final matches = parentId == null ? category.parentId == null : category.parentId == parentId;
+        if (matches) {
+          AppLogger.info('Category ${category.id} (${category.name}) matches parentId filter');
+        }
+        return matches;
+      }).toList().cast<CategoryModel>();
+
+      AppLogger.info('Filtered categories count: ${filteredCategories.length}');
+
+      // Return filtered response
+      return CategoriesResponseModel(
+        categories: filteredCategories,
+        pagination: categoriesResponse.pagination as PaginationModel,
+        success: categoriesResponse.isSuccessful,
+        responseTime: categoriesResponse.responseTime,
+      );
+    } catch (e) {
+      AppLogger.error('Error getting categories by parent: ${e.toString()}');
       throw ServerException();
     }
   }
@@ -81,13 +139,24 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
   Future<CategoryModel> postCategory(
     String name,
     String description,
-    File image,
-  ) async {
+    File image, {
+    int? parentId,
+  }) async {
     try {
+      final data = {
+        'Id': 0,
+        'Name': name,
+        'Description': description,
+      };
+
+      if (parentId != null) {
+        data['ParentId'] = parentId;
+      }
+
       final response = await apiService.uploadFile(
         '/Categories',
         image.path,
-        data: {'Id': 0, 'Name': name, 'Description': description},
+        data: data,
       );
 
       AppLogger.info(response.toString());
@@ -103,13 +172,24 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
     int id,
     String name,
     String description,
-    File image,
-  ) async {
+    File image, {
+    int? parentId,
+  }) async {
     try {
+      final data = {
+        'Id': id,
+        'Name': name,
+        'Description': description,
+      };
+
+      if (parentId != null) {
+        data['ParentId'] = parentId;
+      }
+
       final response = await apiService.updateUploadedFile(
         '/Categories',
         image.path,
-        data: {'Id': id, 'Name': name, 'Description': description},
+        data: data,
       );
 
       AppLogger.info(response.toString());

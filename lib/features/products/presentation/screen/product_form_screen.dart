@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import '../../domain/entities/product.dart';
 import '../../domain/entities/attachment.dart';
 import '../cubit/products_cubit.dart';
@@ -84,6 +87,38 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             ? normalizedPath.substring(1)
             : normalizedPath;
     return '${ApiConstants.baseImageUrl}$cleanPath';
+  }
+
+  // Download existing server image and convert to File object
+  Future<File?> _downloadImageAsFile(String imagePath) async {
+    try {
+      final imageUrl = _getImageUrl(imagePath);
+      debugPrint('Downloading image from: $imageUrl');
+
+      final response = await http.get(Uri.parse(imageUrl));
+
+      if (response.statusCode == 200) {
+        // Get temporary directory
+        final tempDir = await getTemporaryDirectory();
+
+        // Create a unique filename
+        final fileName = 'temp_image_${DateTime.now().millisecondsSinceEpoch}${path.extension(imagePath)}';
+        final filePath = path.join(tempDir.path, fileName);
+
+        // Write the image data to file
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        debugPrint('Image downloaded successfully to: $filePath');
+        return file;
+      } else {
+        debugPrint('Failed to download image. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error downloading image: $e');
+      return null;
+    }
   }
 
   // Get responsive image grid count
@@ -566,14 +601,38 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         cubit.removeMultipleAttachments(_deletedAttachmentIds);
       }
 
-      // Then update the product with new images
+      // Collect ALL images as File objects
+      final allImages = <File>[];
+
+      // Process all images in the _images list
+      for (final imageItem in _images) {
+        if (imageItem.isLocal && imageItem.localPath != null) {
+          // Add local images (new images picked from camera/gallery)
+          allImages.add(File(imageItem.localPath!));
+        } else if (!imageItem.isLocal && imageItem.attachment != null) {
+          // For existing server images, we need to download them first
+          // and convert to File objects to send them back to the server
+          try {
+            final downloadedFile = await _downloadImageAsFile(imageItem.attachment!.path);
+            if (downloadedFile != null) {
+              allImages.add(downloadedFile);
+            }
+          } catch (e) {
+            debugPrint('Error downloading existing image: $e');
+            // Continue with other images even if one fails
+          }
+        }
+      }
+
+      debugPrint('Sending ${allImages.length} images to backend for product update');
+
       cubit.updateProductWithImages(
         id: widget.product!.id,
         name: name,
         description: description,
         price: price.toString(),
-        categoryId: categoryId,
-        images: _newImages,
+        categoryId: int.tryParse(categoryId),
+        images: allImages,
       );
     }
   }
@@ -1046,7 +1105,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -1062,7 +1121,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   ResponsiveUtils.getResponsiveSpacing(context, 12.0),
                 ),
                 decoration: BoxDecoration(
-                  color: Color(0xFFFFC1D4).withOpacity(0.1),
+                  color: Color(0xFFFFC1D4).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(
                     ResponsiveUtils.getResponsiveBorderRadius(context, 12.0),
                   ),
@@ -1125,7 +1184,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -1148,7 +1207,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -1239,7 +1298,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                 ),
               ),
               elevation: 4,
-              shadowColor: Color(0xFFFF8A95).withOpacity(0.3),
+              shadowColor: Color(0xFFFF8A95).withValues(alpha: 0.3),
               disabledBackgroundColor: Colors.grey[300],
             ),
             child:

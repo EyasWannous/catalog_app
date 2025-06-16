@@ -206,7 +206,11 @@ class SimpleProductCard extends StatelessWidget {
               Positioned(
                 top: ResponsiveUtils.getResponsiveSpacing(context, 8),
                 right: ResponsiveUtils.getResponsiveSpacing(context, 8),
-                child: AdminMenu(product: product),
+                child: AdminMenu(
+                  product: product,
+                  onEdit: onEdit,
+                  onDelete: onDelete,
+                ),
               ),
           ],
         ),

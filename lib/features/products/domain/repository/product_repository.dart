@@ -12,6 +12,28 @@ abstract class ProductRepository {
     int? pageNumber,
     int? pageSize,
   });
+
+  // Get products with search functionality
+  Future<Either<Failure, ProductsResponse>> getProductsWithSearch(
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+    String? searchQuery,
+  });
+
+  // Get all products across all categories
+  Future<Either<Failure, ProductsResponse>> getAllProducts({
+    int? pageNumber,
+    int? pageSize,
+  });
+
+  // Get all products with search functionality across all categories
+  Future<Either<Failure, ProductsResponse>> getAllProductsWithSearch({
+    int? pageNumber,
+    int? pageSize,
+    String? searchQuery,
+  });
+
   Future<Either<Failure, Product>> getProduct(int id);
 
   // Create product with images (POST /products with files)
@@ -32,9 +54,22 @@ abstract class ProductRepository {
     String categoryId,
   );
 
+  // Update product with attachments (POST /products/UpdateWithAttachments)
+  Future<Either<Failure, Product>> updateProductWithAttachments(
+    int id, {
+    String? name,
+    String? description,
+    String? price,
+    int? categoryId,
+    List<File>? images,
+  });
+
   Future<Either<Failure, void>> deleteProduct(int id);
 
   // Attachment operations
+  // Get single attachment (GET /attachments/{id})
+  Future<Either<Failure, Attachment>> getAttachment(int attachmentId);
+
   // Create attachment for existing product (POST /attachments)
   Future<Either<Failure, Attachment>> createAttachment(
     int productId,

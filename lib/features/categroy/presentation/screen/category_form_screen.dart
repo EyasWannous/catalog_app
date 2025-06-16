@@ -11,8 +11,9 @@ import '../cubit/categories_state.dart';
 
 class CategoryFormScreen extends StatefulWidget {
   final Category? category;
+  final int? parentId; // ✅ NEW: Support for hierarchical categories
 
-  const CategoryFormScreen({super.key, this.category});
+  const CategoryFormScreen({super.key, this.category, this.parentId});
 
   @override
   State<CategoryFormScreen> createState() => _CategoryFormScreenState();
@@ -78,13 +79,14 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
     final description = _descriptionController.text.trim();
 
     if (widget.category == null) {
-      cubit.createCategory(name, description, _imageFile!);
+      cubit.createCategory(name, description, _imageFile!, parentId: widget.parentId);
     } else {
       cubit.updateCategory(
         widget.category!.id,
         name,
         description,
         _imageFile!, // Can be null to keep existing image
+        parentId: widget.parentId ?? widget.category!.parentId,
       );
     }
   }

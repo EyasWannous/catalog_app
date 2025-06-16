@@ -2,7 +2,7 @@ import 'package:catalog_app/core/network/service_locator.dart';
 import 'package:catalog_app/core/route/app_routes.dart';
 import 'package:catalog_app/features/categroy/domain/entities/category.dart';
 import 'package:catalog_app/features/categroy/presentation/cubit/categories_cubit.dart';
-import 'package:catalog_app/features/categroy/presentation/screen/categories_screen.dart';
+import 'package:catalog_app/features/categroy/presentation/screen/hierarchical_categories_screen.dart';
 import 'package:catalog_app/features/categroy/presentation/screen/category_form_screen.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
 import 'package:catalog_app/features/products/presentation/cubit/productcubit/product_cubit.dart';
@@ -10,6 +10,9 @@ import 'package:catalog_app/features/products/presentation/cubit/products_cubit.
 import 'package:catalog_app/features/products/presentation/screen/product_form_screen.dart';
 import 'package:catalog_app/features/products/presentation/screen/product_details_screen.dart';
 import 'package:catalog_app/features/products/presentation/screen/products_screen.dart';
+import 'package:catalog_app/features/products/presentation/screen/all_products_screen.dart';
+import 'package:catalog_app/features/products/presentation/cubit/all_products_cubit.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,7 +21,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.home,
       builder: (context, state) {
-        return const CategoriesScreen();
+        return const HierarchicalCategoriesScreen();
       },
     ),
     GoRoute(
@@ -31,11 +34,33 @@ final appRouter = GoRouter(
           categoryId = extra['categoryId'] as String?;
           categoryName = extra['categoryName'] as String?;
         }
+
+        // ✅ FIX: Validate categoryId before proceeding
+        if (categoryId == null || categoryId.isEmpty) {
+          // Return error screen or redirect to categories
+          return Scaffold(
+            appBar: AppBar(title: Text('Error')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error, size: 64, color: Colors.red),
+                  SizedBox(height: 16),
+                  Text('Invalid category ID'),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => context.go(AppRoutes.home),
+                    child: Text('Back to Categories'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
         return BlocProvider(
-          create:
-              (context) =>
-                  sl<ProductsCubit>()
-                    ..getProducts(categoryId ?? '', isInitialLoad: true),
+          create: (context) => sl<ProductsCubit>()
+            ..getProducts(categoryId!, isInitialLoad: true), // Safe to use ! since we validated above
           child: ProductsScreen(
             categoryTitle: categoryName,
             categoryId: categoryId,
@@ -68,6 +93,15 @@ final appRouter = GoRouter(
         return BlocProvider(
           create: (context) => sl<CategoriesCubit>(),
           child: CategoryFormScreen(category: category),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.allProducts,
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => sl<AllProductsCubit>()..getAllProducts(isInitialLoad: true),
+          child: const AllProductsScreen(),
         );
       },
     ),

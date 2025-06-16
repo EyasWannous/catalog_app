@@ -9,7 +9,13 @@ class UpdateCategoryUseCase {
 
   UpdateCategoryUseCase(this.repository);
 
-  Future<Either<Failure, void>> call(int id, String name, String description, File image) async {
-    return await repository.updateCategory(id, name, description, image);
+  Future<Either<Failure, void>> call(
+    int id,
+    String name,
+    String description,
+    File image, {
+    int? parentId,
+  }) async {
+    return await repository.updateCategory(id, name, description, image, parentId: parentId);
   }
 }

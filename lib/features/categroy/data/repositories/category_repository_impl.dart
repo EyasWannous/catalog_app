@@ -62,6 +62,50 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
+  Future<Either<Failure, CategoriesResponseModel>> getCategoriesByParent({
+    int? parentId,
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    try {
+      if (await networkInfo.isConnected) {
+        final remoteResponse = await remoteDataSource.getCategoriesByParent(
+          parentId: parentId,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+        // Cache the categories
+        await localDataSource.cacheCategories(
+          remoteResponse.categories.cast<CategoryModel>(),
+        );
+        return Right(remoteResponse);
+      } else {
+        final cachedCategories = await localDataSource.getCachedCategories();
+        // Filter cached categories by parentId
+        final filteredCategories = cachedCategories.where((category) {
+          return parentId == null ? category.parentId == null : category.parentId == parentId;
+        }).toList();
+
+        return Right(
+          CategoriesResponseModel(
+            categories: filteredCategories,
+            pagination: PaginationModel(
+              page: 1,
+              totalCount: filteredCategories.length,
+              resultCount: filteredCategories.length,
+              resultsPerPage: filteredCategories.length,
+            ),
+            success: true,
+            responseTime: DateTime.now().toIso8601String(),
+          ),
+        );
+      }
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> deleteCategory(int id) async {
     try {
       if (await networkInfo.isConnected) {
@@ -93,14 +137,16 @@ class CategoryRepositoryImpl implements CategoryRepository {
   Future<Either<Failure, Category>> postCategory(
     String name,
     String description,
-    File image,
-  ) async {
+    File image, {
+    int? parentId,
+  }) async {
     try {
       if (await networkInfo.isConnected) {
         var response = await remoteDataSource.postCategory(
           name,
           description,
           image,
+          parentId: parentId,
         );
 
         return Right(response);
@@ -116,8 +162,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
     int id,
     String name,
     String description,
-    File image,
-  ) async {
+    File image, {
+    int? parentId,
+  }) async {
     try {
       if (await networkInfo.isConnected) {
         var response = await remoteDataSource.updateCategory(
@@ -125,6 +172,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
           name,
           description,
           image,
+          parentId: parentId,
         );
 
         return Right(response);

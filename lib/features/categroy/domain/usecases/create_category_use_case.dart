@@ -10,7 +10,12 @@ class CreateCategoryUseCase {
 
   CreateCategoryUseCase(this.repository);
 
-  Future<Either<Failure, Category>> call(String name, String description, File image) async {
-    return await repository.postCategory(name, description, image);
+  Future<Either<Failure, Category>> call(
+    String name,
+    String description,
+    File image, {
+    int? parentId,
+  }) async {
+    return await repository.postCategory(name, description, image, parentId: parentId);
   }
 }

@@ -1,5 +1,7 @@
 import 'package:catalog_app/features/categroy/domain/usecases/create_category_use_case.dart';
 import 'package:catalog_app/features/categroy/domain/usecases/delete_category_use_case.dart';
+import 'package:catalog_app/features/categroy/domain/usecases/get_categories_by_parent_use_case.dart';
+import 'package:catalog_app/features/categroy/domain/usecases/get_single_category_use_case.dart';
 import 'package:catalog_app/features/categroy/domain/usecases/update_category_use_case.dart';
 import 'package:catalog_app/features/products/data/datasource/product_local_data_source.dart';
 import 'package:catalog_app/features/products/data/datasource/product_remote_data_source.dart';
@@ -10,10 +12,16 @@ import 'package:catalog_app/features/products/domain/usecase/create_product_with
 import 'package:catalog_app/features/products/domain/usecase/delete_attachment_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/delete_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_products_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/get_products_with_search_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/get_all_products_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/get_all_products_with_search_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/get_single_attachment_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_single_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/update_product_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/update_product_with_attachments_use_case.dart';
 import 'package:catalog_app/features/products/presentation/cubit/productcubit/product_cubit.dart';
 import 'package:catalog_app/features/products/presentation/cubit/products_cubit.dart';
+import 'package:catalog_app/features/products/presentation/cubit/all_products_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive/hive.dart';
@@ -72,8 +80,14 @@ Future<void> init() async {
   sl.registerLazySingleton<DeleteCategoryUseCase>(
     () => DeleteCategoryUseCase(sl()),
   );
+  sl.registerLazySingleton<GetSingleCategoryUseCase>(
+    () => GetSingleCategoryUseCase(sl()),
+  );
+  sl.registerLazySingleton<GetCategoriesByParentUseCase>(
+    () => GetCategoriesByParentUseCase(sl()),
+  );
   sl.registerFactory<CategoriesCubit>(
-    () => CategoriesCubit(sl(), sl(), sl(), sl()),
+    () => CategoriesCubit(sl(), sl(), sl(), sl(), sl(), sl()),
   );
 
   // Features - Product
@@ -118,14 +132,36 @@ Future<void> init() async {
     () => GetSingleProductUseCase(sl()),
   );
 
+  sl.registerLazySingleton<GetProductsWithSearchUseCase>(
+    () => GetProductsWithSearchUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<GetAllProductsUseCase>(
+    () => GetAllProductsUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<GetAllProductsWithSearchUseCase>(
+    () => GetAllProductsWithSearchUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<GetSingleAttachmentUseCase>(
+    () => GetSingleAttachmentUseCase(sl()),
+  );
+
+  sl.registerLazySingleton<UpdateProductWithAttachmentsUseCase>(
+    () => UpdateProductWithAttachmentsUseCase(sl()),
+  );
+
   sl.registerFactory<ProductsCubit>(
     () => ProductsCubit(
       sl<GetProductsUseCase>(),
+      sl<GetProductsWithSearchUseCase>(),
       sl<CreateProductWithImagesUseCase>(),
       sl<CreateAttachmentUseCase>(),
       sl<DeleteAttachmentUseCase>(),
       sl<DeleteAttachmentsUseCase>(),
       sl<UpdateProductUseCase>(),
+      sl<UpdateProductWithAttachmentsUseCase>(),
       sl<DeleteProductUseCase>(),
     ),
   );
@@ -133,8 +169,18 @@ Future<void> init() async {
   sl.registerFactory<ProductCubit>(
     () => ProductCubit(
       sl<GetSingleProductUseCase>(),
+      sl<GetSingleAttachmentUseCase>(),
       sl<CreateAttachmentUseCase>(),
       sl<DeleteAttachmentUseCase>(),
+      sl<DeleteProductUseCase>()
+    ),
+  );
+
+  sl.registerFactory<AllProductsCubit>(
+    () => AllProductsCubit(
+      sl<GetAllProductsUseCase>(),
+      sl<GetAllProductsWithSearchUseCase>(),
+      sl<DeleteProductUseCase>(),
     ),
   );
 }

@@ -70,3 +70,54 @@ class CategoryDeleteError extends CategoriesState {
   final String message;
   const CategoryDeleteError(this.message);
 }
+
+// ✅ NEW: for Single Category operations
+class CategoryLoading extends CategoriesState {}
+
+class CategoryLoaded extends CategoriesState {
+  final Category category;
+  const CategoryLoaded(this.category);
+
+  @override
+  List<Object> get props => [category];
+}
+
+class CategoryError extends CategoriesState {
+  final String message;
+  const CategoryError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+// ✅ NEW: Hierarchical Navigation States
+class HierarchicalCategoriesLoaded extends CategoriesState {
+  final List<Category> categories;
+  final List<Category> navigationStack;
+  final int? currentParentId;
+  final bool isLoadingMore;
+  final bool hasMore;
+
+  const HierarchicalCategoriesLoaded({
+    required this.categories,
+    required this.navigationStack,
+    this.currentParentId,
+    this.isLoadingMore = false,
+    this.hasMore = true,
+  });
+
+  @override
+  List<Object> get props => [
+    categories,
+    navigationStack,
+    currentParentId ?? 0,
+    isLoadingMore,
+    hasMore
+  ];
+
+  bool get isAtRootLevel => currentParentId == null;
+  String get breadcrumbText {
+    if (isAtRootLevel) return 'Categories';
+    return navigationStack.map((cat) => cat.name).join(' > ');
+  }
+}

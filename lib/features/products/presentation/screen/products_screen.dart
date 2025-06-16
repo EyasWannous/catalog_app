@@ -11,11 +11,41 @@ import '../widgets/empty_state.dart';
 import '../widgets/error_state.dart';
 import '../widgets/widgets.dart';
 
-class ProductsScreen extends StatelessWidget {
+class ProductsScreen extends StatefulWidget {
   final String? categoryTitle;
   final String? categoryId;
 
   const ProductsScreen({super.key, this.categoryTitle, this.categoryId});
+
+  @override
+  State<ProductsScreen> createState() => _ProductsScreenState();
+}
+
+class _ProductsScreenState extends State<ProductsScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _currentSearchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (query != _currentSearchQuery) {
+      _currentSearchQuery = query;
+      // Debounce search to avoid too many API calls
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (query == _currentSearchQuery && mounted) {
+          context.read<ProductsCubit>().searchProducts(
+            widget.categoryId ?? '',
+            query.trim(),
+            isInitialLoad: true,
+          );
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +55,31 @@ class ProductsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: categoryTitle ?? AppStrings.allProducts,
+        title: widget.categoryTitle ?? AppStrings.allProducts,
+        searchController: _searchController,
         onMenuPressed: () {},
-        onSearchChanged: (value) {},
+        onSearchChanged: _onSearchChanged,
+        searchHint: 'Search products in ${widget.categoryTitle ?? 'category'}...',
       ),
+      floatingActionButton: isAdmin
+          ? FloatingActionButton(
+              onPressed: () async {
+                final result = await context.push(
+                  AppRoutes.productForm,
+                  extra: {'product': null, 'categoryId': widget.categoryId},
+                );
+
+                if (result == true && mounted) {
+                  context.read<ProductsCubit>().getProducts(
+                    widget.categoryId ?? '',
+                    isInitialLoad: true,
+                  );
+                }
+              },
+              backgroundColor: const Color(0xFFFFC1D4),
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
 
       body: Container(
         constraints: BoxConstraints(
@@ -38,10 +89,18 @@ class ProductsScreen extends StatelessWidget {
           listener: (context, state) {
             if (state is ProductDeleted) {
               // Refresh the products list after successful deletion
-              context.read<ProductsCubit>().getProducts(
-                categoryId ?? '',
-                isInitialLoad: true,
-              );
+              if (_currentSearchQuery.isNotEmpty) {
+                context.read<ProductsCubit>().searchProducts(
+                  widget.categoryId ?? '',
+                  _currentSearchQuery,
+                  isInitialLoad: true,
+                );
+              } else {
+                context.read<ProductsCubit>().getProducts(
+                  widget.categoryId ?? '',
+                  isInitialLoad: true,
+                );
+              }
             } else if (state is ProductDeleteError) {
               // Show error message
               ScaffoldMessenger.of(context).showSnackBar(
@@ -75,15 +134,15 @@ class ProductsScreen extends StatelessWidget {
               if (state is ProductsError) {
                 return ErrorState(
                   message: state.message,
-                  categoryId: categoryId!,
+                  categoryId: widget.categoryId!,
                 );
               }
 
               if (state is ProductsLoaded) {
                 if (state.products.isEmpty) {
                   return EmptyState(
-                    categoryTitle: categoryTitle!,
-                    categoryId: categoryId!,
+                    categoryTitle: widget.categoryTitle!,
+                    categoryId: widget.categoryId!,
                   );
                 } else {
                   return Column(
@@ -93,12 +152,19 @@ class ProductsScreen extends StatelessWidget {
                           products: state.products,
                           isLoadingMore: state.isLoadingMore,
                           hasMore: state.hasMore,
-                          categoryTitle: categoryTitle,
-                          categoryId: categoryId,
+                          categoryTitle: widget.categoryTitle,
+                          categoryId: widget.categoryId,
                           onEndReached: () {
-                            context.read<ProductsCubit>().getProducts(
-                              categoryId ?? '',
-                            );
+                            if (_currentSearchQuery.isNotEmpty) {
+                              context.read<ProductsCubit>().searchProducts(
+                                widget.categoryId ?? '',
+                                _currentSearchQuery,
+                              );
+                            } else {
+                              context.read<ProductsCubit>().getProducts(
+                                widget.categoryId ?? '',
+                              );
+                            }
                           },
                         ),
                       ),
@@ -113,8 +179,8 @@ class ProductsScreen extends StatelessWidget {
               }
 
               return EmptyState(
-                categoryTitle: categoryTitle!,
-                categoryId: categoryId!,
+                categoryTitle: widget.categoryTitle!,
+                categoryId: widget.categoryId!,
               );
             },
           ),
