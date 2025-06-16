@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/product.dart';
-import '../widgets/products_grid.dart';
+import '../widgets/products_grid_with_add.dart';
 
 class PaginatedProductsList extends StatefulWidget {
   final List<Product> products;
@@ -8,6 +8,7 @@ class PaginatedProductsList extends StatefulWidget {
   final bool hasMore;
   final VoidCallback onEndReached;
   final String? categoryTitle;
+  final String? categoryId;
 
   const PaginatedProductsList({
     super.key,
@@ -16,6 +17,7 @@ class PaginatedProductsList extends StatefulWidget {
     required this.hasMore,
     required this.onEndReached,
     this.categoryTitle,
+    this.categoryId,
   });
 
   @override
@@ -30,7 +32,6 @@ class _PaginatedProductsListState extends State<PaginatedProductsList> {
     super.initState();
     _scrollController = ScrollController()..addListener(_onScroll);
 
-    // Handle case where list is already at the bottom
     WidgetsBinding.instance.addPostFrameCallback((_) => _onScroll());
   }
 
@@ -52,10 +53,11 @@ class _PaginatedProductsListState extends State<PaginatedProductsList> {
 
   @override
   Widget build(BuildContext context) {
-    return ProductsGrid(
+    return ProductsGridWithAdd(
       products: widget.products,
       scrollController: _scrollController,
       isLoadingMore: widget.isLoadingMore,
+      categoryId: widget.categoryId,
     );
   }
 }

@@ -54,9 +54,8 @@ class ProductRepoImpl extends ProductRepository {
       pageSize: pageSize,
     );
 
-    final productModels = response.products
-        .map((e) => ProductModel.fromEntity(e))
-        .toList();
+    final productModels =
+        response.products.map((e) => ProductModel.fromEntity(e)).toList();
 
     // Cache products by category
     await productLocalDataSource.cacheProductsByCategory(
@@ -127,33 +126,6 @@ class ProductRepoImpl extends ProductRepository {
   }
 
   @override
-  Future<Either<Failure, Product>> postProduct(
-    String name,
-    String description,
-    String price,
-    String categoryId,
-    List<Attachment> attachments,
-  ) async {
-    try {
-      if (await networkInfo.isConnected) {
-        var response = await productRemoteDataSource.postProduct(
-          name,
-          description,
-          price,
-          categoryId,
-        );
-
-        await productLocalDataSource.invalidateCache();
-
-        return Right(response);
-      }
-      return Left(OfflineFailure());
-    } catch (e) {
-      return Left(ServerFailure());
-    }
-  }
-
-  @override
   Future<Either<Failure, Product>> updateProduct(
     int id,
     String name,
@@ -205,7 +177,7 @@ class ProductRepoImpl extends ProductRepository {
       return Left(ServerFailure());
     }
   }
-  
+
   // New methods for proper backend integration
   @override
   Future<Either<Failure, Product>> createProductWithImages(
@@ -277,7 +249,9 @@ class ProductRepoImpl extends ProductRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteAttachments(List<int> attachmentIds) async {
+  Future<Either<Failure, void>> deleteAttachments(
+    List<int> attachmentIds,
+  ) async {
     try {
       if (await networkInfo.isConnected) {
         // Delete each attachment individually
@@ -294,21 +268,5 @@ class ProductRepoImpl extends ProductRepository {
     } catch (e) {
       return Left(ServerFailure());
     }
-  }
-
-  // Legacy methods - kept for backward compatibility
-  @override
-  Future<Either<Failure, bool>> deleteProductImage(List<int> attachmentIds) async {
-    final result = await deleteAttachments(attachmentIds);
-    return result.fold<Either<Failure, bool>>(
-      (failure) => Left(failure),
-      (_) => const Right(true),
-    );
-  }
-
-  @override
-  Future<Either<Failure, void>> updateProductImages(int id, List<Attachment> attachments) {
-    // This method is deprecated - use createAttachment and deleteAttachment instead
-    throw UnimplementedError('Use createAttachment and deleteAttachment instead');
   }
 }

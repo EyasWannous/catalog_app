@@ -8,7 +8,7 @@ import 'package:catalog_app/features/products/domain/entities/product.dart';
 import 'package:catalog_app/features/products/presentation/cubit/productcubit/product_cubit.dart';
 import 'package:catalog_app/features/products/presentation/cubit/products_cubit.dart';
 import 'package:catalog_app/features/products/presentation/screen/product_form_screen.dart';
-import 'package:catalog_app/features/products/presentation/screen/product_screen.dart';
+import 'package:catalog_app/features/products/presentation/screen/product_details_screen.dart';
 import 'package:catalog_app/features/products/presentation/screen/products_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -32,10 +32,14 @@ final appRouter = GoRouter(
           categoryName = extra['categoryName'] as String?;
         }
         return BlocProvider(
-          create: (context) =>
-              sl<ProductsCubit>()
-                ..getProducts(categoryId ?? '', isInitialLoad: true),
-          child: ProductsScreen(categoryTitle: categoryName),
+          create:
+              (context) =>
+                  sl<ProductsCubit>()
+                    ..getProducts(categoryId ?? '', isInitialLoad: true),
+          child: ProductsScreen(
+            categoryTitle: categoryName,
+            categoryId: categoryId,
+          ),
         );
       },
     ),
@@ -49,7 +53,7 @@ final appRouter = GoRouter(
         }
         return BlocProvider(
           create: (context) => sl<ProductCubit>()..getProduct(productId ?? 1),
-          child: ProductScreen(productId: productId ?? 1),
+          child: ProductDetailsScreen(productId: productId ?? 1),
         );
       },
     ),

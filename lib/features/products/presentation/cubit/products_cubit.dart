@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:catalog_app/features/products/domain/entities/attachment.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
-import 'package:catalog_app/features/products/domain/usecase/create_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/create_product_with_images_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/create_attachment_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/delete_attachment_use_case.dart';
@@ -16,7 +15,6 @@ part 'products_state.dart';
 
 class ProductsCubit extends Cubit<ProductsState> {
   final GetProductsUseCase getProductsUseCase;
-  final CreateProductUseCase createProductUseCase; // Legacy - kept for backward compatibility
   final CreateProductWithImagesUseCase createProductWithImagesUseCase;
   final CreateAttachmentUseCase createAttachmentUseCase;
   final DeleteAttachmentUseCase deleteAttachmentUseCase;
@@ -33,7 +31,6 @@ class ProductsCubit extends Cubit<ProductsState> {
 
   ProductsCubit(
     this.getProductsUseCase,
-    this.createProductUseCase,
     this.createProductWithImagesUseCase,
     this.createAttachmentUseCase,
     this.deleteAttachmentUseCase,
@@ -129,33 +126,6 @@ class ProductsCubit extends Cubit<ProductsState> {
     }
   }
 
-  // Legacy method - kept for backward compatibility
-  @Deprecated('Use createProductWithImages instead')
-  Future<void> createProduct(
-    String name,
-    String description,
-    String price,
-    String categoryId,
-    List<Attachment> attachemts,
-  ) async {
-    emit(ProductFormSubmitting());
-    try {
-      final result = await createProductUseCase(
-        name,
-        description,
-        price,
-        categoryId,
-        attachemts,
-      );
-      result.fold(
-        (failure) => emit(ProductFormError(message: failure.toString())),
-        (product) => emit(ProductFormSuccess(product: product)),
-      );
-    } catch (e) {
-      emit(ProductFormError(message: e.toString()));
-    }
-  }
-
   Future<void> updateProduct(
     int id,
     String name,
@@ -213,14 +183,25 @@ class ProductsCubit extends Cubit<ProductsState> {
           if (images.isNotEmpty) {
             try {
               for (final image in images) {
-                final attachmentResult = await createAttachmentUseCase(id, image);
+                final attachmentResult = await createAttachmentUseCase(
+                  id,
+                  image,
+                );
                 attachmentResult.fold(
-                  (failure) => emit(ProductFormError(message: 'Failed to add image: ${failure.toString()}')),
+                  (failure) => emit(
+                    ProductFormError(
+                      message: 'Failed to add image: ${failure.toString()}',
+                    ),
+                  ),
                   (_) {}, // Continue with next image
                 );
               }
             } catch (e) {
-              emit(ProductFormError(message: 'Failed to add images: ${e.toString()}'));
+              emit(
+                ProductFormError(
+                  message: 'Failed to add images: ${e.toString()}',
+                ),
+              );
               return;
             }
           }

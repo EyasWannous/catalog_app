@@ -1,16 +1,13 @@
 import 'package:catalog_app/features/categroy/domain/usecases/create_category_use_case.dart';
 import 'package:catalog_app/features/categroy/domain/usecases/delete_category_use_case.dart';
 import 'package:catalog_app/features/categroy/domain/usecases/update_category_use_case.dart';
-import 'package:catalog_app/features/products/data/datasource/product_cache_manager.dart';
 import 'package:catalog_app/features/products/data/datasource/product_local_data_source.dart';
 import 'package:catalog_app/features/products/data/datasource/product_remote_data_source.dart';
 import 'package:catalog_app/features/products/data/repository/product_repo_impl.dart';
 import 'package:catalog_app/features/products/domain/repository/product_repository.dart';
 import 'package:catalog_app/features/products/domain/usecase/create_attachment_use_case.dart';
-import 'package:catalog_app/features/products/domain/usecase/create_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/create_product_with_images_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/delete_attachment_use_case.dart';
-import 'package:catalog_app/features/products/domain/usecase/delete_product_images_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/delete_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_products_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_single_product_use_case.dart';
@@ -96,12 +93,7 @@ Future<void> init() async {
     ),
   );
   sl.registerLazySingleton<GetProductsUseCase>(() => GetProductsUseCase(sl()));
-  // Legacy use case - kept for backward compatibility
-  sl.registerLazySingleton<CreateProductUseCase>(
-    () => CreateProductUseCase(sl()),
-  );
 
-  // New use cases for proper backend integration
   sl.registerLazySingleton<CreateProductWithImagesUseCase>(
     () => CreateProductWithImagesUseCase(sl()),
   );
@@ -126,19 +118,9 @@ Future<void> init() async {
     () => GetSingleProductUseCase(sl()),
   );
 
-  // Legacy use case for ProductCubit
-  sl.registerLazySingleton<DeleteProductImagesUseCase>(
-    () => DeleteProductImagesUseCase(sl()),
-  );
-
-  sl.registerLazySingleton<ProductCacheManager>(
-    () => ProductCacheManager(sl()),
-  );
-
   sl.registerFactory<ProductsCubit>(
     () => ProductsCubit(
       sl<GetProductsUseCase>(),
-      sl<CreateProductUseCase>(), // Legacy
       sl<CreateProductWithImagesUseCase>(),
       sl<CreateAttachmentUseCase>(),
       sl<DeleteAttachmentUseCase>(),
@@ -151,7 +133,6 @@ Future<void> init() async {
   sl.registerFactory<ProductCubit>(
     () => ProductCubit(
       sl<GetSingleProductUseCase>(),
-      sl<DeleteProductImagesUseCase>(),
       sl<CreateAttachmentUseCase>(),
       sl<DeleteAttachmentUseCase>(),
     ),

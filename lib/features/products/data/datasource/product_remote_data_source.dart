@@ -38,22 +38,10 @@ abstract class ProductRemoteDataSource {
 
   // Attachment operations
   // Create attachment for existing product (POST /attachments)
-  Future<AttachmentModel> createAttachment(
-    int productId,
-    File imageFile,
-  );
+  Future<AttachmentModel> createAttachment(int productId, File imageFile);
 
   // Delete specific attachment (DELETE /attachments/{id})
   Future<void> deleteAttachment(int attachmentId);
-
-  // Legacy methods - kept for backward compatibility
-  @Deprecated('Use createProductWithImages instead')
-  Future<ProductModel> postProduct(
-    String name,
-    String description,
-    String price,
-    String categoryId,
-  );
 }
 
 class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
@@ -105,33 +93,6 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
   }
 
   @override
-  Future<ProductModel> postProduct(
-    String name,
-    String description,
-    String price,
-    String categoryId,
-  ) async {
-    var body = ProductModel(
-      hiveId: 0,
-      hiveName: name,
-      hiveDescription: description,
-      hivePrice: price,
-      hiveCategoryId: int.parse(categoryId),
-      hiveAttachments: [], // Empty attachments for legacy method
-    );
-
-    try {
-      final response = await apiService.post('/products', data: body.toJson());
-
-      AppLogger.info('Post product response: ${response.toString()}');
-      return ProductModel.fromJson(response.data);
-    } catch (e) {
-      AppLogger.error('Error posting product', e);
-      throw ServerException();
-    }
-  }
-
-  @override
   Future<ProductModel> updateProduct(
     int id,
     String name,
@@ -145,7 +106,8 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
       hiveDescription: description,
       hivePrice: price,
       hiveCategoryId: int.parse(categoryId),
-      hiveAttachments: [], // Empty attachments for update (images handled separately)
+      hiveAttachments:
+          [], // Empty attachments for update (images handled separately)
     );
 
     try {
@@ -155,7 +117,16 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
       );
 
       AppLogger.info('Update product response: ${response.toString()}');
-      return ProductModel.fromJson(response.data);
+
+      // Check if response has 'data' field like individual product response
+      final responseData = response.data;
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('data')) {
+        return ProductModel.fromJson(responseData['data']);
+      } else {
+        // Fallback to direct parsing if no 'data' field
+        return ProductModel.fromJson(responseData);
+      }
     } catch (e) {
       AppLogger.error('Error updating product', e);
       throw ServerException();
@@ -184,21 +155,18 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
     List<File> images,
   ) async {
     try {
-      // Create FormData with product data and images
-      final Map<String, dynamic> formDataMap = {
-        'Name': name,
-        'Description': description,
-        'Price': price,
-        'CategoryId': categoryId,
-      };
+      // Create FormData with only images (product data goes in query parameters)
+      final Map<String, dynamic> formDataMap = {};
 
       // Add images to form data as a list
       final List<MultipartFile> imageFiles = [];
       for (int i = 0; i < images.length; i++) {
-        imageFiles.add(await MultipartFile.fromFile(
-          images[i].path,
-          filename: 'image_$i.jpg',
-        ));
+        imageFiles.add(
+          await MultipartFile.fromFile(
+            images[i].path,
+            filename: 'image_$i.jpg',
+          ),
+        );
       }
 
       if (imageFiles.isNotEmpty) {
@@ -207,14 +175,38 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
 
       final formData = FormData.fromMap(formDataMap);
 
+      // Product data goes as query parameters, not form data
+      final queryParameters = {
+        'Name': name,
+        'Description': description,
+        'Price': price,
+        'CategoryId': categoryId,
+      };
+
+      // Create options without any Content-Type header to let Dio handle FormData properly
       final response = await apiService.post(
         '/products',
         data: formData,
-        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+        queryParameters: queryParameters,
+        options: Options(
+          contentType: null, // Let Dio determine content type automatically
+          headers: {}, // Empty headers to avoid conflicts
+        ),
       );
 
-      AppLogger.info('Create product with images response: ${response.toString()}');
-      return ProductModel.fromJson(response.data);
+      AppLogger.info(
+        'Create product with images response: ${response.toString()}',
+      );
+
+      // Check if response has 'data' field like individual product response
+      final responseData = response.data;
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('data')) {
+        return ProductModel.fromJson(responseData['data']);
+      } else {
+        // Fallback to direct parsing if no 'data' field
+        return ProductModel.fromJson(responseData);
+      }
     } catch (e) {
       AppLogger.error('Error creating product with images', e);
       throw ServerException();
@@ -238,11 +230,23 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
       final response = await apiService.post(
         '/attachments',
         data: formData,
-        options: Options(headers: {'Content-Type': 'multipart/form-data'}),
+        options: Options(
+          contentType: null, // Let Dio determine content type automatically
+          headers: {}, // Empty headers to avoid conflicts
+        ),
       );
 
       AppLogger.info('Create attachment response: ${response.toString()}');
-      return AttachmentModel.fromJson(response.data);
+
+      // Check if response has 'data' field like individual product response
+      final responseData = response.data;
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('data')) {
+        return AttachmentModel.fromJson(responseData['data']);
+      } else {
+        // Fallback to direct parsing if no 'data' field
+        return AttachmentModel.fromJson(responseData);
+      }
     } catch (e) {
       AppLogger.error('Error creating attachment', e);
       throw ServerException();

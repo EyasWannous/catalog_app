@@ -46,20 +46,4 @@ abstract class ProductRepository {
 
   // Delete multiple attachments
   Future<Either<Failure, void>> deleteAttachments(List<int> attachmentIds);
-
-  // Legacy methods - kept for backward compatibility
-  @Deprecated('Use createProductWithImages instead')
-  Future<Either<Failure, Product>> postProduct(
-    String name,
-    String description,
-    String price,
-    String categoryId,
-    List<Attachment> attachments,
-  );
-
-  @Deprecated('Use createAttachment and deleteAttachment instead')
-  Future<Either<Failure, void>> updateProductImages(int id, List<Attachment> attachments);
-
-  @Deprecated('Use deleteAttachments instead')
-  Future<Either<Failure, bool>> deleteProductImage(List<int> attachmentIds);
 }
