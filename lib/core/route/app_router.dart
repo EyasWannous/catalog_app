@@ -1,20 +1,22 @@
-import 'package:catalog_app/core/network/service_locator.dart';
-import 'package:catalog_app/core/route/app_routes.dart';
-import 'package:catalog_app/features/categroy/domain/entities/category.dart';
-import 'package:catalog_app/features/categroy/presentation/cubit/categories_cubit.dart';
-import 'package:catalog_app/features/categroy/presentation/screen/hierarchical_categories_screen.dart';
-import 'package:catalog_app/features/categroy/presentation/screen/category_form_screen.dart';
-import 'package:catalog_app/features/products/domain/entities/product.dart';
-import 'package:catalog_app/features/products/presentation/cubit/productcubit/product_cubit.dart';
-import 'package:catalog_app/features/products/presentation/cubit/products_cubit.dart';
-import 'package:catalog_app/features/products/presentation/screen/product_form_screen.dart';
-import 'package:catalog_app/features/products/presentation/screen/product_details_screen.dart';
-import 'package:catalog_app/features/products/presentation/screen/products_screen.dart';
-import 'package:catalog_app/features/products/presentation/screen/all_products_screen.dart';
-import 'package:catalog_app/features/products/presentation/cubit/all_products_cubit.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:catalog_app/core/network/service_locator.dart';
+import 'package:catalog_app/core/route/app_routes.dart';
+import 'package:catalog_app/features/category/domain/entities/category.dart';
+import 'package:catalog_app/features/category/presentation/cubit/categories_cubit.dart';
+import 'package:catalog_app/features/category/presentation/screen/category_form_screen.dart';
+import 'package:catalog_app/features/category/presentation/screen/hierarchical_categories_screen.dart';
+import 'package:catalog_app/features/products/domain/entities/product.dart';
+import 'package:catalog_app/features/products/presentation/cubit/all_products_cubit.dart';
+import 'package:catalog_app/features/products/presentation/cubit/productcubit/product_cubit.dart';
+import 'package:catalog_app/features/products/presentation/cubit/products_cubit.dart';
+import 'package:catalog_app/features/products/presentation/screen/all_products_screen.dart';
+import 'package:catalog_app/features/products/presentation/screen/product_details_screen.dart';
+import 'package:catalog_app/features/products/presentation/screen/product_form_screen.dart';
+import 'package:catalog_app/features/products/presentation/screen/products_screen.dart';
 
 final appRouter = GoRouter(
   routes: [
@@ -60,7 +62,10 @@ final appRouter = GoRouter(
 
         return BlocProvider(
           create: (context) => sl<ProductsCubit>()
-            ..getProducts(categoryId!, isInitialLoad: true), // Safe to use ! since we validated above
+            ..getProducts(
+              categoryId!,
+              isInitialLoad: true,
+            ), // Safe to use ! since we validated above
           child: ProductsScreen(
             categoryTitle: categoryName,
             categoryId: categoryId,
@@ -100,7 +105,8 @@ final appRouter = GoRouter(
       path: AppRoutes.allProducts,
       builder: (context, state) {
         return BlocProvider(
-          create: (context) => sl<AllProductsCubit>()..getAllProducts(isInitialLoad: true),
+          create: (context) =>
+              sl<AllProductsCubit>()..getAllProducts(isInitialLoad: true),
           child: const AllProductsScreen(),
         );
       },

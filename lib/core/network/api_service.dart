@@ -257,7 +257,7 @@ class ApiService {
     }
   }
 
-    // Upload file
+  // Upload file
   Future<Response<T>> updateUploadedFile<T>(
     String path,
     String filePath, {

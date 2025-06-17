@@ -18,11 +18,7 @@ class AttachmentModel extends Attachment {
     required this.hiveId,
     this.hiveProductId,
     required this.hivePath,
-  }) : super(
-          id: hiveId,
-          productId: hiveProductId,
-          path: hivePath,
-        );
+  }) : super(id: hiveId, productId: hiveProductId, path: hivePath);
 
   factory AttachmentModel.fromJson(Map<String, dynamic> json) {
     return AttachmentModel(
@@ -45,8 +41,8 @@ class AttachmentModel extends Attachment {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': hiveId,
-        'productId': hiveProductId,
-        'path': hivePath,
-      };
+    'id': hiveId,
+    'productId': hiveProductId,
+    'path': hivePath,
+  };
 }

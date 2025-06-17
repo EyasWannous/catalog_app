@@ -29,6 +29,7 @@ class ProductError extends ProductState {
   @override
   List<Object?> get props => [message];
 }
+
 // Legacy states - kept for backward compatibility
 class ProductImageDeleting extends ProductState {}
 

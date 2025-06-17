@@ -59,7 +59,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
         searchController: _searchController,
         onMenuPressed: () {},
         onSearchChanged: _onSearchChanged,
-        searchHint: 'Search products in ${widget.categoryTitle ?? 'category'}...',
+        searchHint:
+            'Search products in ${widget.categoryTitle ?? 'category'}...',
       ),
       floatingActionButton: isAdmin
           ? FloatingActionButton(

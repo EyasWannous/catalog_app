@@ -8,7 +8,7 @@ import '../../../../core/route/app_routes.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../domain/entities/product.dart';
 import '../cubit/products_cubit.dart';
-import 'admin_menu.dart';
+
 import 'animated_navigation_button.dart';
 
 class ProductImageCarousel extends StatefulWidget {

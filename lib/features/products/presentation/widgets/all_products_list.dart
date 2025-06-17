@@ -73,16 +73,16 @@ class _AllProductsListState extends State<AllProductsList> {
         return SimpleProductCard(
           product: product,
           onTap: () {
-            context.push(
-              AppRoutes.product,
-              extra: {'productId': product.id},
-            );
+            context.push(AppRoutes.product, extra: {'productId': product.id});
           },
           onEdit: isAdmin
               ? () async {
                   final result = await context.push(
                     AppRoutes.productForm,
-                    extra: {'product': product, 'categoryId': product.categoryId.toString()},
+                    extra: {
+                      'product': product,
+                      'categoryId': product.categoryId.toString(),
+                    },
                   );
 
                   if (result == true && mounted) {
@@ -124,9 +124,7 @@ class _AllProductsListState extends State<AllProductsList> {
                 Navigator.of(dialogContext).pop();
                 context.read<AllProductsCubit>().deleteProduct(product.id);
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Delete'),
             ),
           ],

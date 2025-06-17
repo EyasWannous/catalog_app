@@ -24,10 +24,7 @@ abstract class ProductRemoteDataSource {
   });
 
   // Get all products across all categories
-  Future<ProductResponseModel> getAllProducts({
-    int? pageNumber,
-    int? pageSize,
-  });
+  Future<ProductResponseModel> getAllProducts({int? pageNumber, int? pageSize});
 
   // Get all products with search functionality across all categories
   Future<ProductResponseModel> getAllProductsWithSearch({
@@ -103,14 +100,20 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
       AppLogger.info('📡 API Endpoint: $endpoint');
       AppLogger.info('📋 Query Parameters: $queryParams');
 
-      final response = await apiService.get(endpoint, queryParameters: queryParams);
+      final response = await apiService.get(
+        endpoint,
+        queryParameters: queryParams,
+      );
 
       AppLogger.info('✅ Get products response status: ${response.statusCode}');
       AppLogger.info('📦 Get products response data: ${response.data}');
 
       return ProductResponseModel.fromJson(response.data);
     } catch (e) {
-      AppLogger.error('❌ Error getting products for categoryId: $categoryId', e);
+      AppLogger.error(
+        '❌ Error getting products for categoryId: $categoryId',
+        e,
+      );
       throw ServerException();
     }
   }
@@ -136,7 +139,9 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
         '/Categories/$categoryId/products',
         queryParameters: queryParameters,
       );
-      AppLogger.info('Get products with search response: ${response.toString()}');
+      AppLogger.info(
+        'Get products with search response: ${response.toString()}',
+      );
       return ProductResponseModel.fromJson(response.data);
     } catch (e) {
       AppLogger.error('Error getting products with search', e);
@@ -455,10 +460,14 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
         try {
           // Fetch the updated product to return the latest data
           final updatedProduct = await getProduct(id);
-          AppLogger.info('Successfully fetched updated product after 204 response');
+          AppLogger.info(
+            'Successfully fetched updated product after 204 response',
+          );
           return updatedProduct;
         } catch (e) {
-          AppLogger.error('Error fetching updated product after 204 response: $e');
+          AppLogger.error(
+            'Error fetching updated product after 204 response: $e',
+          );
 
           // Fallback: construct a basic product model from available data
           // This is a last resort if we can't fetch the updated product
@@ -468,7 +477,8 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
             hiveDescription: description ?? 'Updated Description',
             hivePrice: price ?? '0',
             hiveCategoryId: categoryId ?? 0,
-            hiveAttachments: [], // Will be empty since we can't determine the final state
+            hiveAttachments:
+                [], // Will be empty since we can't determine the final state
           );
         }
       }
@@ -490,7 +500,6 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
       // If we reach here, something unexpected happened
       AppLogger.error('Unexpected response format: ${response.data}');
       throw ServerException();
-
     } catch (e) {
       AppLogger.error('Error updating product with attachments: $e');
       if (e is ServerException) {
@@ -544,7 +553,9 @@ class ProductRemoteDataSourceImpl extends ProductRemoteDataSource {
         '/products',
         queryParameters: queryParameters,
       );
-      AppLogger.info('Get all products with search response: ${response.toString()}');
+      AppLogger.info(
+        'Get all products with search response: ${response.toString()}',
+      );
       return ProductResponseModel.fromJson(response.data);
     } catch (e) {
       AppLogger.error('Error getting all products with search', e);

@@ -1,10 +1,11 @@
 import 'package:bloc/bloc.dart';
+import 'package:meta/meta.dart';
+
 import 'package:catalog_app/core/utils/logger.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
+import 'package:catalog_app/features/products/domain/usecase/delete_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_all_products_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_all_products_with_search_use_case.dart';
-import 'package:catalog_app/features/products/domain/usecase/delete_product_use_case.dart';
-import 'package:meta/meta.dart';
 
 part 'all_products_state.dart';
 
@@ -54,11 +55,13 @@ class AllProductsCubit extends Cubit<AllProductsState> {
       emit(AllProductsLoading());
     } else {
       // Show loading more indicator
-      emit(AllProductsLoaded(
-        products: List.from(_products),
-        isLoadingMore: true,
-        hasMore: _hasMore,
-      ));
+      emit(
+        AllProductsLoaded(
+          products: List.from(_products),
+          isLoadingMore: true,
+          hasMore: _hasMore,
+        ),
+      );
     }
 
     try {
@@ -75,7 +78,8 @@ class AllProductsCubit extends Cubit<AllProductsState> {
             );
 
       result.fold(
-        (failure) => emit(AllProductsError(message: "Failed to load: $failure")),
+        (failure) =>
+            emit(AllProductsError(message: "Failed to load: $failure")),
         (response) {
           final newProducts = response.products;
 

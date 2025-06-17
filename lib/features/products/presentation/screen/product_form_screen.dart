@@ -82,10 +82,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     // Convert backslashes to forward slashes for URL
     final normalizedPath = imagePath.replaceAll('\\', '/');
     // Remove leading slash if present to avoid double slashes
-    final cleanPath =
-        normalizedPath.startsWith('/')
-            ? normalizedPath.substring(1)
-            : normalizedPath;
+    final cleanPath = normalizedPath.startsWith('/')
+        ? normalizedPath.substring(1)
+        : normalizedPath;
     return '${ApiConstants.baseImageUrl}$cleanPath';
   }
 
@@ -102,7 +101,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         final tempDir = await getTemporaryDirectory();
 
         // Create a unique filename
-        final fileName = 'temp_image_${DateTime.now().millisecondsSinceEpoch}${path.extension(imagePath)}';
+        final fileName =
+            'temp_image_${DateTime.now().millisecondsSinceEpoch}${path.extension(imagePath)}';
         final filePath = path.join(tempDir.path, fileName);
 
         // Write the image data to file
@@ -112,7 +112,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         debugPrint('Image downloaded successfully to: $filePath');
         return file;
       } else {
-        debugPrint('Failed to download image. Status code: ${response.statusCode}');
+        debugPrint(
+          'Failed to download image. Status code: ${response.statusCode}',
+        );
         return null;
       }
     } catch (e) {
@@ -264,10 +266,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     required VoidCallback onTap,
     bool isFullWidth = false,
   }) {
-    final buttonWidth =
-        isFullWidth
-            ? double.infinity
-            : ResponsiveUtils.getAdCardWidth(context) * 0.8;
+    final buttonWidth = isFullWidth
+        ? double.infinity
+        : ResponsiveUtils.getAdCardWidth(context) * 0.8;
 
     return GestureDetector(
       onTap: onTap,
@@ -283,53 +284,44 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           ),
           border: Border.all(color: Colors.grey[300]!),
         ),
-        child:
-            isFullWidth
-                ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      icon,
-                      size: ResponsiveUtils.getResponsiveIconSize(
-                        context,
-                        24.0,
-                      ),
-                      color: Theme.of(context).primaryColor,
+        child: isFullWidth
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    icon,
+                    size: ResponsiveUtils.getResponsiveIconSize(context, 24.0),
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize:
+                          16.0 * ResponsiveUtils.getFontSizeMultiplier(context),
+                      fontWeight: FontWeight.w500,
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize:
-                            16.0 *
-                            ResponsiveUtils.getFontSizeMultiplier(context),
-                        fontWeight: FontWeight.w500,
-                      ),
+                  ),
+                ],
+              )
+            : Column(
+                children: [
+                  Icon(
+                    icon,
+                    size: ResponsiveUtils.getResponsiveIconSize(context, 40.0),
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize:
+                          16.0 * ResponsiveUtils.getFontSizeMultiplier(context),
+                      fontWeight: FontWeight.w500,
                     ),
-                  ],
-                )
-                : Column(
-                  children: [
-                    Icon(
-                      icon,
-                      size: ResponsiveUtils.getResponsiveIconSize(
-                        context,
-                        40.0,
-                      ),
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize:
-                            16.0 *
-                            ResponsiveUtils.getFontSizeMultiplier(context),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -613,7 +605,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           // For existing server images, we need to download them first
           // and convert to File objects to send them back to the server
           try {
-            final downloadedFile = await _downloadImageAsFile(imageItem.attachment!.path);
+            final downloadedFile = await _downloadImageAsFile(
+              imageItem.attachment!.path,
+            );
             if (downloadedFile != null) {
               allImages.add(downloadedFile);
             }
@@ -624,7 +618,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         }
       }
 
-      debugPrint('Sending ${allImages.length} images to backend for product update');
+      debugPrint(
+        'Sending ${allImages.length} images to backend for product update',
+      );
 
       cubit.updateProductWithImages(
         id: widget.product!.id,
@@ -741,10 +737,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             Icon(
               Icons.add_photo_alternate,
               size: ResponsiveUtils.getResponsiveIconSize(context, 28.0),
-              color:
-                  _canAddMoreImages()
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey,
+              color: _canAddMoreImages()
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey,
             ),
             SizedBox(height: 4),
             Text(
@@ -752,10 +747,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               style: TextStyle(
                 fontSize: 10.0 * ResponsiveUtils.getFontSizeMultiplier(context),
                 fontWeight: FontWeight.w500,
-                color:
-                    _canAddMoreImages()
-                        ? Theme.of(context).primaryColor
-                        : Colors.grey,
+                color: _canAddMoreImages()
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
               ),
               textAlign: TextAlign.center,
             ),
@@ -801,56 +795,53 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               borderRadius: BorderRadius.circular(
                 ResponsiveUtils.getResponsiveBorderRadius(context, 12.0),
               ),
-              child:
-                  imageItem.isLocal
-                      ? Image.file(
-                        File(imageItem.localPath!),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[200],
-                            child: const Icon(
-                              Icons.broken_image,
-                              color: Colors.grey,
-                              size: 40,
-                            ),
-                          );
-                        },
-                      )
-                      : Image.network(
-                        _getImageUrl(imageItem.attachment!.path),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[200],
-                            child: const Icon(
-                              Icons.broken_image,
-                              color: Colors.grey,
-                              size: 40,
-                            ),
-                          );
-                        },
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            color: Colors.grey[100],
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                value:
-                                    loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Theme.of(context).primaryColor,
-                                ),
+              child: imageItem.isLocal
+                  ? Image.file(
+                      File(imageItem.localPath!),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[200],
+                          child: const Icon(
+                            Icons.broken_image,
+                            color: Colors.grey,
+                            size: 40,
+                          ),
+                        );
+                      },
+                    )
+                  : Image.network(
+                      _getImageUrl(imageItem.attachment!.path),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[200],
+                          child: const Icon(
+                            Icons.broken_image,
+                            color: Colors.grey,
+                            size: 40,
+                          ),
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: Colors.grey[100],
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                  : null,
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Theme.of(context).primaryColor,
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ),
           Positioned(
@@ -1232,11 +1223,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             label: 'Product Name',
             hint: 'Enter product name',
             icon: Icons.inventory_2_outlined,
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true
-                        ? 'Please enter a product name'
-                        : null,
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Please enter a product name' : null,
           ),
 
           SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 20.0)),
@@ -1248,11 +1236,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             hint: 'Enter product description',
             icon: Icons.description_outlined,
             maxLines: ResponsiveUtils.isMobile(context) ? 3 : 4,
-            validator:
-                (value) =>
-                    value?.isEmpty ?? true
-                        ? 'Please enter a description'
-                        : null,
+            validator: (value) =>
+                value?.isEmpty ?? true ? 'Please enter a description' : null,
           ),
 
           SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 20.0)),
@@ -1301,59 +1286,56 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               shadowColor: Color(0xFFFF8A95).withValues(alpha: 0.3),
               disabledBackgroundColor: Colors.grey[300],
             ),
-            child:
-                isLoading
-                    ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
+            child: isLoading
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
                         ),
-                        SizedBox(width: 12),
-                        Text(
-                          widget.product == null
-                              ? 'Creating...'
-                              : 'Updating...',
-                          style: TextStyle(
-                            fontSize:
-                                16.0 *
-                                ResponsiveUtils.getFontSizeMultiplier(context),
-                            fontWeight: FontWeight.w600,
-                          ),
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        widget.product == null ? 'Creating...' : 'Updating...',
+                        style: TextStyle(
+                          fontSize:
+                              16.0 *
+                              ResponsiveUtils.getFontSizeMultiplier(context),
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                    )
-                    : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          widget.product == null ? Icons.add : Icons.save,
-                          size: ResponsiveUtils.getResponsiveIconSize(
-                            context,
-                            20.0,
-                          ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        widget.product == null ? Icons.add : Icons.save,
+                        size: ResponsiveUtils.getResponsiveIconSize(
+                          context,
+                          20.0,
                         ),
-                        SizedBox(width: 8),
-                        Text(
-                          widget.product == null
-                              ? 'Create Product'
-                              : 'Update Product',
-                          style: TextStyle(
-                            fontSize:
-                                16.0 *
-                                ResponsiveUtils.getFontSizeMultiplier(context),
-                            fontWeight: FontWeight.w600,
-                          ),
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        widget.product == null
+                            ? 'Create Product'
+                            : 'Update Product',
+                        style: TextStyle(
+                          fontSize:
+                              16.0 *
+                              ResponsiveUtils.getFontSizeMultiplier(context),
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
           ),
         );
       },

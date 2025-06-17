@@ -20,7 +20,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onSearchChanged,
     this.searchController,
     this.showSearch = true,
-    this.showDrawer=true,
+    this.showDrawer = true,
     this.backgroundColor = const Color(0xFFFFC1D4),
     this.textColor = Colors.white,
   });
@@ -36,9 +36,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: EdgeInsets.symmetric(
             horizontal:
                 ResponsiveUtils.isTablet(context) ||
-                        ResponsiveUtils.isDesktop(context)
-                    ? 24
-                    : 16,
+                    ResponsiveUtils.isDesktop(context)
+                ? 24
+                : 16,
             vertical: 8,
           ),
           child: Column(
@@ -61,22 +61,24 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         color: textColor,
                         fontSize:
                             16 * ResponsiveUtils.getFontSizeMultiplier(context),
-
                       ),
                       maxLines: 1, // Ensures text stays on one line
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Spacer(),
-                  if(showDrawer)
-                  GestureDetector(
-                    onTap: onMenuPressed,
-                    child: Icon(
-                      Icons.menu,
-                      color: textColor,
-                      size: ResponsiveUtils.getResponsiveIconSize(context, 24),
+                  if (showDrawer)
+                    GestureDetector(
+                      onTap: onMenuPressed,
+                      child: Icon(
+                        Icons.menu,
+                        color: textColor,
+                        size: ResponsiveUtils.getResponsiveIconSize(
+                          context,
+                          24,
+                        ),
+                      ),
                     ),
-                  ),
                 ],
               ),
 

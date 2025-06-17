@@ -172,10 +172,9 @@ class _ProductLoadingWidgetState extends State<ProductLoadingWidget>
           builder: (context, child) {
             final delay = index * 0.3;
             final animationValue = (_pulseController.value + delay) % 1.0;
-            final opacity =
-                (animationValue < 0.5)
-                    ? animationValue * 2
-                    : (1.0 - animationValue) * 2;
+            final opacity = (animationValue < 0.5)
+                ? animationValue * 2
+                : (1.0 - animationValue) * 2;
 
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),

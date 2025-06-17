@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:catalog_app/core/error/failure.dart';
 import 'package:catalog_app/core/network/network_info.dart';
-import 'package:catalog_app/features/categroy/domain/entities/pagination.dart';
+import 'package:catalog_app/features/category/domain/entities/pagination.dart';
 import 'package:catalog_app/features/products/data/datasource/product_local_data_source.dart';
 import 'package:catalog_app/features/products/data/datasource/product_remote_data_source.dart';
 import 'package:catalog_app/features/products/data/model/product_model.dart';
@@ -77,8 +77,9 @@ class ProductRepoImpl extends ProductRepository {
       pageSize: pageSize,
     );
 
-    final productModels =
-        response.products.map((e) => ProductModel.fromEntity(e)).toList();
+    final productModels = response.products
+        .map((e) => ProductModel.fromEntity(e))
+        .toList();
 
     // Cache products by category
     await productLocalDataSource.cacheProductsByCategory(
@@ -107,8 +108,9 @@ class ProductRepoImpl extends ProductRepository {
       searchQuery: searchQuery,
     );
 
-    final productModels =
-        response.products.map((e) => ProductModel.fromEntity(e)).toList();
+    final productModels = response.products
+        .map((e) => ProductModel.fromEntity(e))
+        .toList();
 
     // Cache products by category
     await productLocalDataSource.cacheProductsByCategory(
@@ -325,7 +327,9 @@ class ProductRepoImpl extends ProductRepository {
   Future<Either<Failure, Attachment>> getAttachment(int attachmentId) async {
     try {
       if (await networkInfo.isConnected) {
-        final response = await productRemoteDataSource.getAttachment(attachmentId);
+        final response = await productRemoteDataSource.getAttachment(
+          attachmentId,
+        );
         return Right(response);
       }
       return Left(OfflineFailure());
@@ -345,14 +349,15 @@ class ProductRepoImpl extends ProductRepository {
   }) async {
     try {
       if (await networkInfo.isConnected) {
-        final response = await productRemoteDataSource.updateProductWithAttachments(
-          id,
-          name: name,
-          description: description,
-          price: price,
-          categoryId: categoryId,
-          images: images,
-        );
+        final response = await productRemoteDataSource
+            .updateProductWithAttachments(
+              id,
+              name: name,
+              description: description,
+              price: price,
+              categoryId: categoryId,
+              images: images,
+            );
 
         // Remove the specific product from cache and invalidate category cache
         await productLocalDataSource.removeCachedProduct(id);
@@ -420,8 +425,9 @@ class ProductRepoImpl extends ProductRepository {
       pageSize: pageSize,
     );
 
-    final productModels =
-        response.products.map((e) => ProductModel.fromEntity(e)).toList();
+    final productModels = response.products
+        .map((e) => ProductModel.fromEntity(e))
+        .toList();
 
     // Cache individual products for faster detail access
     for (final productModel in productModels) {
@@ -442,8 +448,9 @@ class ProductRepoImpl extends ProductRepository {
       searchQuery: searchQuery,
     );
 
-    final productModels =
-        response.products.map((e) => ProductModel.fromEntity(e)).toList();
+    final productModels = response.products
+        .map((e) => ProductModel.fromEntity(e))
+        .toList();
 
     // Cache individual products for faster detail access
     for (final productModel in productModels) {

@@ -1,18 +1,19 @@
 import 'dart:io';
 
-import 'package:catalog_app/core/utils/logger.dart';
 import 'package:bloc/bloc.dart';
+import 'package:meta/meta.dart';
+
+import 'package:catalog_app/core/utils/logger.dart';
 import 'package:catalog_app/features/products/domain/entities/attachment.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
-import 'package:catalog_app/features/products/domain/usecase/create_product_with_images_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/create_attachment_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/create_product_with_images_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/delete_attachment_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/delete_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_products_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_products_with_search_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/update_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/update_product_with_attachments_use_case.dart';
-import 'package:meta/meta.dart';
 
 part 'products_state.dart';
 
@@ -53,10 +54,16 @@ class ProductsCubit extends Cubit<ProductsState> {
     String? searchQuery,
   }) async {
     // ✅ FIX: Validate categoryId
-    AppLogger.info('🛍️ ProductsCubit.getProducts called with categoryId: "$categoryId"');
+    AppLogger.info(
+      '🛍️ ProductsCubit.getProducts called with categoryId: "$categoryId"',
+    );
     if (categoryId.isEmpty) {
       AppLogger.error('❌ Invalid category ID: categoryId cannot be empty');
-      emit(ProductsError(message: "Invalid category ID: categoryId cannot be empty"));
+      emit(
+        ProductsError(
+          message: "Invalid category ID: categoryId cannot be empty",
+        ),
+      );
       return;
     }
 

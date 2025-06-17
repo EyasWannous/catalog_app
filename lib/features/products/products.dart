@@ -1,3 +1,4 @@
+// Domain
 export 'domain/entities/product.dart';
 export 'domain/entities/attachment.dart';
 export 'domain/repository/product_repository.dart';

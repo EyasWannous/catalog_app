@@ -39,7 +39,8 @@ class ApiConstants {
     int pageSize = 10,
     String? searchQuery,
   }) {
-    String endpoint = '$categoriesEndpoint/$categoryId/products?pageNumber=$pageNumber&pageSize=$pageSize';
+    String endpoint =
+        '$categoriesEndpoint/$categoryId/products?pageNumber=$pageNumber&pageSize=$pageSize';
     if (searchQuery != null && searchQuery.isNotEmpty) {
       endpoint += '&searchQuery=$searchQuery';
     }
@@ -49,7 +50,8 @@ class ApiConstants {
   static String getProductEndpoint(int id) => '$productsEndpoint/$id';
   static String deleteProductEndpoint(int id) => '$productsEndpoint/$id';
   static String updateProductEndpoint(int id) => '$productsEndpoint/$id';
-  static String updateProductWithAttachmentsEndpoint() => '$productsEndpoint/UpdateWithAttachments';
+  static String updateProductWithAttachmentsEndpoint() =>
+      '$productsEndpoint/UpdateWithAttachments';
 
   // Attachment endpoints
   static String getAttachmentEndpoint(int id) => '$attachmentsEndpoint/$id';

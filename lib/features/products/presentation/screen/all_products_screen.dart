@@ -1,14 +1,17 @@
-import 'package:catalog_app/core/route/app_routes.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/config/app_config.dart';
-import '../../../../core/utils/responsive_utils.dart';
-import '../../../../core/sharedWidgets/custom_app_bar.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/route/app_routes.dart';
+import '../../../../core/shared_widgets/empty_state_widget.dart';
+import '../../../../core/shared_widgets/error_state_widget.dart';
+import '../../../../core/shared_widgets/loading_state_widget.dart';
+import '../../../../core/sharedWidgets/custom_app_bar.dart';
+import '../../../../core/utils/responsive_utils.dart';
 import '../cubit/all_products_cubit.dart';
-import '../widgets/empty_state.dart';
-import '../widgets/error_state.dart';
 import '../widgets/widgets.dart';
 
 class AllProductsScreen extends StatefulWidget {
@@ -120,76 +123,48 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
           child: BlocBuilder<AllProductsCubit, AllProductsState>(
             builder: (context, state) {
               if (state is AllProductsLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return LoadingStateVariants.medium(
+                  message: 'Loading products...',
+                );
               }
 
               if (state is AllProductsError) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.red,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Error: ${state.message}',
-                        style: const TextStyle(fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_currentSearchQuery.isNotEmpty) {
-                            context.read<AllProductsCubit>().searchAllProducts(
-                              _currentSearchQuery,
-                              isInitialLoad: true,
-                            );
-                          } else {
-                            context.read<AllProductsCubit>().getAllProducts(
-                              isInitialLoad: true,
-                            );
-                          }
-                        },
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
+                return ErrorStateVariants.generic(
+                  message: state.message,
+                  onRetry: () {
+                    if (_currentSearchQuery.isNotEmpty) {
+                      context.read<AllProductsCubit>().searchAllProducts(
+                        _currentSearchQuery,
+                        isInitialLoad: true,
+                      );
+                    } else {
+                      context.read<AllProductsCubit>().getAllProducts(
+                        isInitialLoad: true,
+                      );
+                    }
+                  },
                 );
               }
 
               if (state is AllProductsLoaded) {
                 if (state.products.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.inventory_2_outlined,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _currentSearchQuery.isNotEmpty
-                              ? 'No products found for "${_currentSearchQuery}"'
-                              : 'No products available',
-                          style: const TextStyle(fontSize: 16),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (_currentSearchQuery.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Try searching with different keywords',
-                            style: TextStyle(fontSize: 14, color: Colors.grey),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ],
-                    ),
-                  );
+                  return _currentSearchQuery.isNotEmpty
+                      ? EmptyStateVariants.search(searchTerm: _currentSearchQuery)
+                      : EmptyStateVariants.products(
+                          onAddProduct: AppConfig.isAdmin
+                              ? () async {
+                                  final result = await context.push(
+                                    AppRoutes.productForm,
+                                    extra: {'product': null, 'categoryId': null},
+                                  );
+                                  if (result == true && mounted) {
+                                    context.read<AllProductsCubit>().getAllProducts(
+                                      isInitialLoad: true,
+                                    );
+                                  }
+                                }
+                              : null,
+                        );
                 } else {
                   return Column(
                     children: [
@@ -200,9 +175,9 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
                           hasMore: state.hasMore,
                           onEndReached: () {
                             if (_currentSearchQuery.isNotEmpty) {
-                              context.read<AllProductsCubit>().searchAllProducts(
-                                _currentSearchQuery,
-                              );
+                              context
+                                  .read<AllProductsCubit>()
+                                  .searchAllProducts(_currentSearchQuery);
                             } else {
                               context.read<AllProductsCubit>().getAllProducts();
                             }
@@ -210,9 +185,8 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
                         ),
                       ),
                       if (state.isLoadingMore)
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: CircularProgressIndicator(),
+                        LoadingStateVariants.small(
+                          message: 'Loading more products...',
                         ),
                     ],
                   );

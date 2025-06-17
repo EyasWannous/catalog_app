@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/app_config.dart';
-import '../../../../core/constants/api_constants.dart';
+
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/route/app_routes.dart';
 import '../../domain/entities/product.dart';
@@ -47,9 +47,9 @@ class ProductsGridWithAdd extends StatelessWidget {
           mainAxisSpacing: ResponsiveUtils.getResponsiveSpacing(context, 16),
           childAspectRatio:
               ResponsiveUtils.isTablet(context) ||
-                      ResponsiveUtils.isDesktop(context)
-                  ? 0.75
-                  : 0.8,
+                  ResponsiveUtils.isDesktop(context)
+              ? 0.75
+              : 0.8,
         ),
         itemBuilder: (context, index) {
           if (isAdmin && index == 0) {

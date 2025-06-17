@@ -60,15 +60,14 @@ class _AnimatedNavigationButtonState extends State<AnimatedNavigationButton>
             child: Container(
               width: widget.size,
               height: widget.size,
-              margin:
-                  widget.isSmall
-                      ? EdgeInsets.symmetric(
-                        horizontal: ResponsiveUtils.getResponsiveSpacing(
-                          context,
-                          8,
-                        ),
-                      )
-                      : null,
+              margin: widget.isSmall
+                  ? EdgeInsets.symmetric(
+                      horizontal: ResponsiveUtils.getResponsiveSpacing(
+                        context,
+                        8,
+                      ),
+                    )
+                  : null,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.9),
                 shape: BoxShape.circle,

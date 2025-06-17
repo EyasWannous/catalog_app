@@ -1,4 +1,4 @@
-import 'package:catalog_app/features/categroy/domain/entities/pagination.dart';
+import 'package:catalog_app/features/category/domain/entities/pagination.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
 import 'package:equatable/equatable.dart';
 

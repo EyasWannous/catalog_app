@@ -32,13 +32,13 @@ class ProductModel extends Product {
     required this.hiveCategoryId,
     required this.hiveAttachments,
   }) : super(
-          id: hiveId,
-          name: hiveName,
-          description: hiveDescription,
-          price: hivePrice,
-          categoryId: hiveCategoryId,
-          attachments: hiveAttachments,
-        );
+         id: hiveId,
+         name: hiveName,
+         description: hiveDescription,
+         price: hivePrice,
+         categoryId: hiveCategoryId,
+         attachments: hiveAttachments,
+       );
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     final attachmentsJson = json['attachments'] as List<dynamic>? ?? [];
@@ -67,19 +67,17 @@ class ProductModel extends Product {
       hivePrice: entity.price,
       hiveCategoryId: entity.categoryId,
       hiveAttachments: entity.attachments
-          .map((x) => x is AttachmentModel
-              ? x
-              : AttachmentModel.fromEntity(x))
+          .map((x) => x is AttachmentModel ? x : AttachmentModel.fromEntity(x))
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': hiveId,
-        'name': hiveName,
-        'description': hiveDescription,
-        'price': hivePrice,
-        'categoryId': hiveCategoryId,
-        'attachments': hiveAttachments.map((e) => e.toJson()).toList(),
-      };
+    'id': hiveId,
+    'name': hiveName,
+    'description': hiveDescription,
+    'price': hivePrice,
+    'categoryId': hiveCategoryId,
+    'attachments': hiveAttachments.map((e) => e.toJson()).toList(),
+  };
 }

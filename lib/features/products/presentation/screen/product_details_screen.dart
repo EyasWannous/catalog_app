@@ -1,12 +1,9 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../core/route/app_routes.dart';
 import '../../../../core/sharedWidgets/custom_app_bar.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../cubit/productcubit/product_cubit.dart';
-import '../cubit/products_cubit.dart';
+
 import '../widgets/widgets.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -61,12 +58,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
       end: 1.0,
     ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
     _contentFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _contentController, curve: Curves.easeOut),
@@ -101,16 +96,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
         if (state is ProductLoaded) {
           final product = state.product;
           final cubit = context.read<ProductCubit>();
-          final images =
-              product.attachments.isNotEmpty
-                  ? product.attachments
-                      .map((attachment) => attachment.path)
-                      .toList()
-                  : ['placeholder']; // Fallback for products without images
+          final images = product.attachments.isNotEmpty
+              ? product.attachments
+                    .map((attachment) => attachment.path)
+                    .toList()
+              : ['placeholder']; // Fallback for products without images
 
           return Scaffold(
             backgroundColor: Colors.white,
-            appBar: CustomAppBar(title: product.name,showSearch: false,showDrawer: false,),
+            appBar: CustomAppBar(
+              title: product.name,
+              showSearch: false,
+              showDrawer: false,
+            ),
             body: SingleChildScrollView(
               child: Container(
                 constraints: BoxConstraints(

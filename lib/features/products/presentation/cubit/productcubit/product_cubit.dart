@@ -1,4 +1,10 @@
 import 'dart:io';
+
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meta/meta.dart';
+
 import 'package:catalog_app/features/products/domain/entities/attachment.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
 import 'package:catalog_app/features/products/domain/usecase/create_attachment_use_case.dart';
@@ -6,10 +12,6 @@ import 'package:catalog_app/features/products/domain/usecase/delete_attachment_u
 import 'package:catalog_app/features/products/domain/usecase/delete_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_single_attachment_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_single_product_use_case.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
-import 'package:bloc/bloc.dart';
 
 part 'product_state.dart';
 
@@ -48,7 +50,8 @@ class ProductCubit extends Cubit<ProductState> {
     try {
       final result = await getSingleAttachmentUseCase(attachmentId);
       result.fold(
-        (failure) => emit(AttachmentError("Failed to load attachment: $failure")),
+        (failure) =>
+            emit(AttachmentError("Failed to load attachment: $failure")),
         (attachment) => emit(AttachmentLoaded(attachment)),
       );
     } catch (e) {
