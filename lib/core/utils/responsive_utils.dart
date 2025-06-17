@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Responsive utility class to handle different screen sizes
 class ResponsiveUtils {
   static const double mobileBreakpoint = 600;
-  static const double tabletBreakpoint = 900;
+  static const double tabletBreakpoint = 1000;
   static const double desktopBreakpoint = 1200;
 
   /// Check if the current screen is mobile
@@ -29,7 +29,7 @@ class ResponsiveUtils {
     } else if (isTablet(context)) {
       return const EdgeInsets.symmetric(horizontal: 32);
     } else {
-      return const EdgeInsets.symmetric(horizontal: 64);
+      return const EdgeInsets.symmetric(horizontal: 34);
     }
   }
 
@@ -66,9 +66,9 @@ class ResponsiveUtils {
     if (isMobile(context)) {
       return 2;
     } else if (isTablet(context)) {
-      return 3;
+      return 2;
     } else {
-      return 4;
+      return 2;
     }
   }
 
@@ -146,6 +146,28 @@ class ResponsiveUtils {
       return baseRadius * 1.2;
     } else {
       return baseRadius * 1.5;
+    }
+  }
+
+  /// Get responsive grid cross axis count for GridView
+  static int getGridCrossAxisCount(BuildContext context) {
+    if (isMobile(context)) {
+      return 2; // 2 columns on mobile
+    } else if (isTablet(context)) {
+      return 3; // 3 columns on tablet
+    } else {
+      return 4; // 4 columns on desktop
+    }
+  }
+
+  /// Get responsive grid child aspect ratio for GridView items
+  static double getGridChildAspectRatio(BuildContext context) {
+    if (isMobile(context)) {
+      return 0.75; // Slightly taller than wide on mobile for better product display
+    } else if (isTablet(context)) {
+      return 0.8; // Balanced ratio on tablet
+    } else {
+      return 0.85; // More square-like on desktop
     }
   }
 }

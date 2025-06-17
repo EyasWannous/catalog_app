@@ -17,9 +17,47 @@ class ProductCard extends StatelessWidget {
     this.description,
     this.price,
     this.onTap,
-    this.showPrice = false,
+    this.showPrice = true,
     this.showDescription = true,
   });
+
+  // Widget _buildRatingStars(BuildContext context, double rating) {
+  //   return Row(
+  //     mainAxisSize: MainAxisSize.min,
+  //     children: [
+  //       ...List.generate(5, (index) {
+  //         if (index < rating.floor()) {
+  //           return Icon(
+  //             Icons.star,
+  //             size: ResponsiveUtils.getResponsiveIconSize(context, 12),
+  //             color: Colors.amber,
+  //           );
+  //         } else if (index < rating) {
+  //           return Icon(
+  //             Icons.star_half,
+  //             size: ResponsiveUtils.getResponsiveIconSize(context, 12),
+  //             color: Colors.amber,
+  //           );
+  //         } else {
+  //           return Icon(
+  //             Icons.star_border,
+  //             size: ResponsiveUtils.getResponsiveIconSize(context, 12),
+  //             color: Colors.grey[400],
+  //           );
+  //         }
+  //       }),
+  //       SizedBox(width: ResponsiveUtils.getResponsiveSpacing(context, 4)),
+  //       Text(
+  //         rating.toStringAsFixed(1),
+  //         style: TextStyle(
+  //           fontSize: 10 * ResponsiveUtils.getFontSizeMultiplier(context),
+  //           color: Colors.grey[600],
+  //           fontWeight: FontWeight.w500,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -88,11 +126,10 @@ class ProductCard extends StatelessWidget {
                         color: Colors.grey[200],
                         child: Center(
                           child: CircularProgressIndicator(
-                            value:
-                                loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                : null,
                             strokeWidth: 2,
                             color: Color(0xFFFFC1D4),
                           ),
@@ -103,7 +140,6 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
             ),
-
             // Product Details
             Expanded(
               flex: 3,
@@ -142,7 +178,12 @@ class ProductCard extends StatelessWidget {
 
                     // Product Description (if enabled)
                     if (showDescription) ...[
-
+                      SizedBox(
+                        height: ResponsiveUtils.getResponsiveSpacing(
+                          context,
+                          4,
+                        ),
+                      ),
                       Text(
                         description ?? "Lorem ipsum dolor sit amet...",
                         style: TextStyle(
@@ -156,20 +197,44 @@ class ProductCard extends StatelessWidget {
                       ),
                     ],
 
-                    // Product Price (if enabled)
-                    if (showPrice && price != null) ...[
+                    // Rating and Price Row
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Rating (if enabled)
+                        // if (showRating && rating != null) ...[
+                        //   SizedBox(
+                        //     height: ResponsiveUtils.getResponsiveSpacing(
+                        //       context,
+                        //       6,
+                        //     ),
+                        //   ),
+                        //   _buildRatingStars(context, rating!),
+                        // ],
 
-                      Text(
-                        price!,
-                        style: TextStyle(
-                          fontSize:
-                              16 *
-                              ResponsiveUtils.getFontSizeMultiplier(context),
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFFC1D4),
-                        ),
-                      ),
-                    ],
+                        // Product Price (if enabled)
+                        if (showPrice && price != null) ...[
+                          SizedBox(
+                            height: ResponsiveUtils.getResponsiveSpacing(
+                              context,
+                              4,
+                            ),
+                          ),
+                          Text(
+                            price!,
+                            style: TextStyle(
+                              fontSize:
+                                  16 *
+                                  ResponsiveUtils.getFontSizeMultiplier(
+                                    context,
+                                  ),
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFFFC1D4),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ],
                 ),
               ),

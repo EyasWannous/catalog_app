@@ -9,7 +9,7 @@ class ScreenSize {
     final mediaQuery = MediaQuery.of(context);
     width = mediaQuery.size.width;
     height = mediaQuery.size.height;
-    textScale = mediaQuery.textScaleFactor;
+    textScale = mediaQuery.textScaler.scale(1.0);
   }
 
   static double wp(double percent) => width * percent / 100;

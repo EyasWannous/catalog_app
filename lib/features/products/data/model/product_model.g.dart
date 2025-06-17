@@ -20,14 +20,16 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       hiveId: fields[0] as int,
       hiveName: fields[1] as String,
       hiveDescription: fields[2] as String,
-      hiveCategoryId: fields[3] as int,
+      hivePrice: fields[3] as String,
+      hiveCategoryId: fields[4] as int,
+      hiveAttachments: (fields[5] as List).cast<AttachmentModel>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.hiveId)
       ..writeByte(1)
@@ -35,7 +37,11 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       ..writeByte(2)
       ..write(obj.hiveDescription)
       ..writeByte(3)
-      ..write(obj.hiveCategoryId);
+      ..write(obj.hivePrice)
+      ..writeByte(4)
+      ..write(obj.hiveCategoryId)
+      ..writeByte(5)
+      ..write(obj.hiveAttachments);
   }
 
   @override

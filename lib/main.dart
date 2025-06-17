@@ -1,11 +1,14 @@
-import 'package:device_preview/device_preview.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+import 'package:device_preview/device_preview.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:hive_flutter/adapters.dart';
 
+import 'core/constants/app_strings.dart';
 import 'core/network/service_locator.dart';
 import 'core/route/app_router.dart';
-import 'features/categroy/data/models/category_model.dart';
+import 'features/category/data/models/category_model.dart';
 import 'features/products/data/model/product_model.dart';
 
 Future<void> initHive() async {
@@ -21,11 +24,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initHive();
   await init();
+  await EasyLocalization.ensureInitialized();
 
   runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      builder: (context) => const MyApp(),
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('ar'), Locale('de')],
+      path: 'assets/localization',
+      fallbackLocale: const Locale('en'),
+      child: DevicePreview(
+        enabled: !kReleaseMode,
+        builder: (context) => const MyApp(),
+      ),
     ),
   );
 }
@@ -36,11 +45,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      // Required for device_preview
+      title: AppStrings.appTitle.tr(),
+      locale: DevicePreview.locale(context),
       routerConfig: appRouter,
-      title: 'Catalog App',
-      useInheritedMediaQuery: true, // Required for device_preview
-      locale: DevicePreview.locale(context), // Required for device_preview
-      builder: DevicePreview.appBuilder, // Required for device_preview
+      builder: DevicePreview.appBuilder,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFFFC1D4)),
         useMaterial3: true,
