@@ -14,6 +14,7 @@ class UpdateProductUseCase {
     String description,
     String price,
     String categoryId,
+    String syrianPoundPrice,
   ) async {
     return await repository.updateProduct(
       id,
@@ -21,6 +22,7 @@ class UpdateProductUseCase {
       description,
       price,
       categoryId,
+      syrianPoundPrice,
     );
   }
 }

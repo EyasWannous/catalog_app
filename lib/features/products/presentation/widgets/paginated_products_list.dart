@@ -9,6 +9,8 @@ class PaginatedProductsList extends StatefulWidget {
   final VoidCallback onEndReached;
   final String? categoryTitle;
   final String? categoryId;
+  final VoidCallback? onProductUpdated;
+  final Function(Product)? onProductDeleted;
 
   const PaginatedProductsList({
     super.key,
@@ -18,6 +20,8 @@ class PaginatedProductsList extends StatefulWidget {
     required this.onEndReached,
     this.categoryTitle,
     this.categoryId,
+    this.onProductUpdated,
+    this.onProductDeleted,
   });
 
   @override
@@ -58,6 +62,8 @@ class _PaginatedProductsListState extends State<PaginatedProductsList> {
       scrollController: _scrollController,
       isLoadingMore: widget.isLoadingMore,
       categoryId: widget.categoryId,
+      onProductUpdated: widget.onProductUpdated,
+      onProductDeleted: widget.onProductDeleted,
     );
   }
 }

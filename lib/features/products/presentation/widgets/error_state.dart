@@ -6,7 +6,11 @@ import '../../../../core/utils/responsive_utils.dart';
 import '../cubit/products_cubit.dart';
 
 class ErrorState extends StatelessWidget {
-  const ErrorState({super.key, required this.categoryId, required this.message});
+  const ErrorState({
+    super.key,
+    required this.categoryId,
+    required this.message,
+  });
   final String categoryId;
   final String message;
 
@@ -26,14 +30,8 @@ class ErrorState extends StatelessWidget {
                 return Transform.scale(
                   scale: value,
                   child: Container(
-                    width: ResponsiveUtils.getResponsiveIconSize(
-                      context,
-                      100,
-                    ),
-                    height: ResponsiveUtils.getResponsiveIconSize(
-                      context,
-                      100,
-                    ),
+                    width: ResponsiveUtils.getResponsiveIconSize(context, 100),
+                    height: ResponsiveUtils.getResponsiveIconSize(context, 100),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -51,10 +49,7 @@ class ErrorState extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.error_outline,
-                      size: ResponsiveUtils.getResponsiveIconSize(
-                        context,
-                        50,
-                      ),
+                      size: ResponsiveUtils.getResponsiveIconSize(context, 50),
                       color: Colors.red[400],
                     ),
                   ),
@@ -62,12 +57,7 @@ class ErrorState extends StatelessWidget {
               },
             ),
 
-            SizedBox(
-              height: ResponsiveUtils.getResponsiveSpacing(
-                context,
-                24,
-              ),
-            ),
+            SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 24)),
 
             // Error Title
             TweenAnimationBuilder<double>(
@@ -80,10 +70,7 @@ class ErrorState extends StatelessWidget {
                     'Oops! Something went wrong',
                     style: TextStyle(
                       fontSize:
-                      20 *
-                          ResponsiveUtils.getFontSizeMultiplier(
-                            context,
-                          ),
+                          20 * ResponsiveUtils.getFontSizeMultiplier(context),
                       fontWeight: FontWeight.w700,
                       color: Colors.black87,
                       letterSpacing: -0.3,
@@ -94,12 +81,7 @@ class ErrorState extends StatelessWidget {
               },
             ),
 
-            SizedBox(
-              height: ResponsiveUtils.getResponsiveSpacing(
-                context,
-                12,
-              ),
-            ),
+            SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 12)),
 
             // Error Message
             TweenAnimationBuilder<double>(
@@ -110,10 +92,7 @@ class ErrorState extends StatelessWidget {
                   opacity: value,
                   child: Container(
                     padding: EdgeInsets.all(
-                      ResponsiveUtils.getResponsiveSpacing(
-                        context,
-                        16,
-                      ),
+                      ResponsiveUtils.getResponsiveSpacing(context, 16),
                     ),
                     decoration: BoxDecoration(
                       color: Colors.red.withOpacity(0.05),
@@ -127,10 +106,7 @@ class ErrorState extends StatelessWidget {
                       message,
                       style: TextStyle(
                         fontSize:
-                        14 *
-                            ResponsiveUtils.getFontSizeMultiplier(
-                              context,
-                            ),
+                            14 * ResponsiveUtils.getFontSizeMultiplier(context),
                         color: Colors.red[700],
                         height: 1.4,
                       ),
@@ -140,12 +116,7 @@ class ErrorState extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(
-              height: ResponsiveUtils.getResponsiveSpacing(
-                context,
-                32,
-              ),
-            ),
+            SizedBox(height: ResponsiveUtils.getResponsiveSpacing(context, 32)),
             TweenAnimationBuilder<double>(
               tween: Tween(begin: 0.0, end: 1.0),
               duration: const Duration(milliseconds: 1200),
@@ -167,13 +138,11 @@ class ErrorState extends StatelessWidget {
                         backgroundColor: const Color(0xFFFF8A95),
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(
-                          horizontal:
-                          ResponsiveUtils.getResponsiveSpacing(
+                          horizontal: ResponsiveUtils.getResponsiveSpacing(
                             context,
                             24,
                           ),
-                          vertical:
-                          ResponsiveUtils.getResponsiveSpacing(
+                          vertical: ResponsiveUtils.getResponsiveSpacing(
                             context,
                             16,
                           ),
@@ -182,9 +151,7 @@ class ErrorState extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 4,
-                        shadowColor: const Color(
-                          0xFFFF8A95,
-                        ).withOpacity(0.3),
+                        shadowColor: const Color(0xFFFF8A95).withOpacity(0.3),
                       ),
                     ),
                   ),

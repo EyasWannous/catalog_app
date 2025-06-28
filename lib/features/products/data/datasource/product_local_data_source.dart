@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 
 import '../model/product_model.dart';
+import 'syrian_price_cache_service.dart';
 
 abstract class ProductLocalDataSource {
   Future<void> cacheProductsByCategory(
@@ -20,16 +21,25 @@ abstract class ProductLocalDataSource {
   Future<void> clearCorruptedCache();
   Future<void> clearExpiredCache();
   Future<bool> isProductCacheValid(int productId);
+
+  // Syrian price specific caching
+  Future<void> cacheSyrianPrice(int productId, String syrianPrice);
+  Future<String?> getCachedSyrianPrice(int productId);
+  Future<void> removeCachedSyrianPrice(int productId);
+  Future<void> clearExpiredSyrianPriceCache();
 }
 
 class ProductLocalDataSourceImpl implements ProductLocalDataSource {
   final Box box;
+  late final SyrianPriceCacheService _syrianPriceCacheService;
   static const String _productPrefix = 'product_';
   static const String _timestampPrefix = 'timestamp_';
   static const int _cacheExpirationDays =
       7; // Cache expires after 7 days (longer retention)
 
-  ProductLocalDataSourceImpl(this.box);
+  ProductLocalDataSourceImpl(this.box) {
+    _syrianPriceCacheService = SyrianPriceCacheService(box);
+  }
 
   @override
   Future<void> cacheProductsByCategory(
@@ -39,12 +49,16 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
     try {
       final productMaps = products.map((product) => product.toJson()).toList();
       await box.put(categoryId, productMaps);
+
+      // Also cache Syrian prices separately for better performance
+      await _syrianPriceCacheService.cacheSyrianPricesFromProducts(products);
     } catch (e) {
       // If there's an error (likely due to model changes), clear the cache
       await clearCorruptedCache();
       // Retry caching
       final productMaps = products.map((product) => product.toJson()).toList();
       await box.put(categoryId, productMaps);
+      await _syrianPriceCacheService.cacheSyrianPricesFromProducts(products);
     }
   }
 
@@ -91,6 +105,15 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
 
       await box.put(productKey, product.toJson());
       await box.put(timestampKey, DateTime.now().millisecondsSinceEpoch);
+
+      // Also cache Syrian price separately
+      if (product.syrianPoundPrice.isNotEmpty &&
+          product.syrianPoundPrice != '0') {
+        await _syrianPriceCacheService.cacheSyrianPrice(
+          product.id,
+          product.syrianPoundPrice,
+        );
+      }
     } catch (e) {
       // If there's an error, clear corrupted cache and retry
       await clearCorruptedCache();
@@ -99,6 +122,15 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
 
       await box.put(productKey, product.toJson());
       await box.put(timestampKey, DateTime.now().millisecondsSinceEpoch);
+
+      // Also cache Syrian price separately
+      if (product.syrianPoundPrice.isNotEmpty &&
+          product.syrianPoundPrice != '0') {
+        await _syrianPriceCacheService.cacheSyrianPrice(
+          product.id,
+          product.syrianPoundPrice,
+        );
+      }
     }
   }
 
@@ -174,8 +206,32 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
       for (final key in expiredKeys) {
         await box.delete(key);
       }
+
+      // Also clear expired Syrian price cache
+      await _syrianPriceCacheService.clearExpiredSyrianPriceCache();
     } catch (e) {
       // If there's an error, we can ignore it as this is cleanup
     }
+  }
+
+  // Syrian price specific caching methods
+  @override
+  Future<void> cacheSyrianPrice(int productId, String syrianPrice) async {
+    await _syrianPriceCacheService.cacheSyrianPrice(productId, syrianPrice);
+  }
+
+  @override
+  Future<String?> getCachedSyrianPrice(int productId) async {
+    return await _syrianPriceCacheService.getCachedSyrianPrice(productId);
+  }
+
+  @override
+  Future<void> removeCachedSyrianPrice(int productId) async {
+    await _syrianPriceCacheService.removeCachedSyrianPrice(productId);
+  }
+
+  @override
+  Future<void> clearExpiredSyrianPriceCache() async {
+    await _syrianPriceCacheService.clearExpiredSyrianPriceCache();
   }
 }

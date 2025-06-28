@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/route/app_routes.dart';
 import '../../../../core/utils/responsive_utils.dart';
+import '../../../../core/shared_widgets/confirmation_dialog.dart';
 import '../../domain/entities/product.dart';
 import '../cubit/products_cubit.dart';
 
@@ -40,32 +41,51 @@ class AdminMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(
-          ResponsiveUtils.getResponsiveBorderRadius(context, 8),
+        gradient: LinearGradient(
+          colors: [
+            Colors.black.withOpacity(0.3),
+            Colors.black.withOpacity(0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-
+        borderRadius: BorderRadius.circular(
+          ResponsiveUtils.getResponsiveBorderRadius(context, 12),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: ResponsiveUtils.getResponsiveSpacing(context, 8),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: PopupMenuButton<String>(
-        icon: Icon(
-          Icons.more_vert,
-          color: Colors.white,
-          size: ResponsiveUtils.getResponsiveIconSize(context, 18),
-        ),
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            ResponsiveUtils.getResponsiveBorderRadius(context, 8),
+        icon: Container(
+          padding: EdgeInsets.all(
+            ResponsiveUtils.getResponsiveSpacing(context, 8),
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(
+              ResponsiveUtils.getResponsiveBorderRadius(context, 8),
+            ),
+          ),
+          child: Icon(
+            Icons.more_vert_rounded,
+            color: Colors.white,
+            size: ResponsiveUtils.getResponsiveIconSize(context, 20),
           ),
         ),
-        offset: Offset(0, ResponsiveUtils.getResponsiveSpacing(context, 8)),
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            ResponsiveUtils.getResponsiveBorderRadius(context, 16),
+          ),
+        ),
+        offset: Offset(0, ResponsiveUtils.getResponsiveSpacing(context, 12)),
+        elevation: ResponsiveUtils.getResponsiveElevation(context, 8.0),
         onSelected: (value) {
           switch (value) {
             case 'edit':
@@ -80,22 +100,46 @@ class AdminMenu extends StatelessWidget {
             (context) => [
               PopupMenuItem<String>(
                 value: 'edit',
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveUtils.getResponsiveSpacing(context, 20),
+                  vertical: ResponsiveUtils.getResponsiveSpacing(context, 12),
+                ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.edit_outlined,
-                      size: ResponsiveUtils.getResponsiveIconSize(context, 16),
-                      color: Colors.blue[600],
+                    Container(
+                      padding: EdgeInsets.all(
+                        ResponsiveUtils.getResponsiveSpacing(context, 8),
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.blue.withOpacity(0.1),
+                            Colors.blue.withOpacity(0.05),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveUtils.getResponsiveBorderRadius(context, 8),
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.edit_rounded,
+                        size: ResponsiveUtils.getResponsiveIconSize(
+                          context,
+                          18,
+                        ),
+                        color: const Color(0xFF3B82F6),
+                      ),
                     ),
                     SizedBox(
-                      width: ResponsiveUtils.getResponsiveSpacing(context, 8),
+                      width: ResponsiveUtils.getResponsiveSpacing(context, 12),
                     ),
                     Text(
-                      'Edit',
+                      'Edit Product',
                       style: TextStyle(
                         fontSize:
-                            14 * ResponsiveUtils.getFontSizeMultiplier(context),
-                        color: Colors.black87,
+                            16 * ResponsiveUtils.getFontSizeMultiplier(context),
+                        color: const Color(0xFF1E293B),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -103,22 +147,46 @@ class AdminMenu extends StatelessWidget {
               ),
               PopupMenuItem<String>(
                 value: 'delete',
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveUtils.getResponsiveSpacing(context, 20),
+                  vertical: ResponsiveUtils.getResponsiveSpacing(context, 12),
+                ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.delete_outline,
-                      size: ResponsiveUtils.getResponsiveIconSize(context, 16),
-                      color: Colors.red[600],
+                    Container(
+                      padding: EdgeInsets.all(
+                        ResponsiveUtils.getResponsiveSpacing(context, 8),
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.red.withOpacity(0.1),
+                            Colors.red.withOpacity(0.05),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveUtils.getResponsiveBorderRadius(context, 8),
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.delete_rounded,
+                        size: ResponsiveUtils.getResponsiveIconSize(
+                          context,
+                          18,
+                        ),
+                        color: const Color(0xFFEF4444),
+                      ),
                     ),
                     SizedBox(
-                      width: ResponsiveUtils.getResponsiveSpacing(context, 8),
+                      width: ResponsiveUtils.getResponsiveSpacing(context, 12),
                     ),
                     Text(
-                      'Delete',
+                      'Delete Product',
                       style: TextStyle(
                         fontSize:
-                            14 * ResponsiveUtils.getFontSizeMultiplier(context),
-                        color: Colors.black87,
+                            16 * ResponsiveUtils.getFontSizeMultiplier(context),
+                        color: const Color(0xFF1E293B),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -144,221 +212,34 @@ class AdminMenu extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (dialogContext) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                ResponsiveUtils.getResponsiveBorderRadius(context, 16),
-              ),
-            ),
-            title: Row(
-              children: [
-                Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.orange[600],
-                  size: ResponsiveUtils.getResponsiveIconSize(context, 28),
-                ),
-                SizedBox(
-                  width: ResponsiveUtils.getResponsiveSpacing(context, 12),
-                ),
-                Text(
-                  'Delete Product',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize:
-                        18 * ResponsiveUtils.getFontSizeMultiplier(context),
-                  ),
-                ),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Are you sure you want to delete this product?',
-                  style: TextStyle(
-                    fontSize:
-                        16 * ResponsiveUtils.getFontSizeMultiplier(context),
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(
-                  height: ResponsiveUtils.getResponsiveSpacing(context, 12),
-                ),
-                Container(
-                  padding: EdgeInsets.all(
-                    ResponsiveUtils.getResponsiveSpacing(context, 12),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(
-                      ResponsiveUtils.getResponsiveBorderRadius(context, 8),
-                    ),
-                    border: Border.all(color: Colors.grey[200]!),
-                  ),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          ResponsiveUtils.getResponsiveBorderRadius(context, 6),
-                        ),
-                        child:
-                            product.attachments.isNotEmpty
-                                ? Image.network(
-                                  _getImageUrl(product.attachments.first.path),
-                                  width: ResponsiveUtils.getResponsiveSpacing(
-                                    context,
-                                    40,
-                                  ),
-                                  height: ResponsiveUtils.getResponsiveSpacing(
-                                    context,
-                                    40,
-                                  ),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      width:
-                                          ResponsiveUtils.getResponsiveSpacing(
-                                            context,
-                                            40,
-                                          ),
-                                      height:
-                                          ResponsiveUtils.getResponsiveSpacing(
-                                            context,
-                                            40,
-                                          ),
-                                      color: Colors.grey[300],
-                                      child: Icon(
-                                        Icons.image,
-                                        size:
-                                            ResponsiveUtils.getResponsiveIconSize(
-                                              context,
-                                              20,
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                )
-                                : Container(
-                                  width: ResponsiveUtils.getResponsiveSpacing(
-                                    context,
-                                    40,
-                                  ),
-                                  height: ResponsiveUtils.getResponsiveSpacing(
-                                    context,
-                                    40,
-                                  ),
-                                  color: Colors.grey[300],
-                                  child: Icon(
-                                    Icons.image,
-                                    size: ResponsiveUtils.getResponsiveIconSize(
-                                      context,
-                                      20,
-                                    ),
-                                  ),
-                                ),
-                      ),
-                      SizedBox(
-                        width: ResponsiveUtils.getResponsiveSpacing(
-                          context,
-                          12,
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              product.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize:
-                                    14 *
-                                    ResponsiveUtils.getFontSizeMultiplier(
-                                      context,
-                                    ),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              '\$${product.price}',
-                              style: TextStyle(
-                                color: Color(0xFFFF8A95),
-                                fontWeight: FontWeight.w500,
-                                fontSize:
-                                    12 *
-                                    ResponsiveUtils.getFontSizeMultiplier(
-                                      context,
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: ResponsiveUtils.getResponsiveSpacing(context, 12),
-                ),
-                Text(
-                  'This action cannot be undone.',
-                  style: TextStyle(
-                    fontSize:
-                        14 * ResponsiveUtils.getFontSizeMultiplier(context),
-                    color: Colors.red[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                    fontSize:
-                        14 * ResponsiveUtils.getFontSizeMultiplier(context),
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(dialogContext);
-                  if (onDelete != null) {
-                    onDelete!();
-                  } else {
-                    // Default delete action using ProductsCubit
-                    context.read<ProductsCubit>().deleteProduct(product.id);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      ResponsiveUtils.getResponsiveBorderRadius(context, 8),
-                    ),
-                  ),
-                ),
-                child: Text(
-                  'Delete',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize:
-                        14 * ResponsiveUtils.getFontSizeMultiplier(context),
-                  ),
-                ),
-              ),
-            ],
-          ),
+    // If onDelete callback is provided, use it directly (parent will handle dialog)
+    if (onDelete != null) {
+      onDelete!();
+      return;
+    }
+
+    // Use the enhanced ConfirmationDialog
+    ConfirmationDialog.show(
+      context,
+      title: 'Delete Product',
+      message: _buildDeleteMessage(),
+      confirmText: 'Delete Product',
+      cancelText: 'Keep Product',
+      confirmColor: const Color(0xFFEF4444),
+      icon: Icons.delete_forever_rounded,
+      iconColor: const Color(0xFFEF4444),
+      onConfirm: () {
+        context.read<ProductsCubit>().deleteProduct(product.id);
+      },
     );
+  }
+
+  String _buildDeleteMessage() {
+    return 'Are you sure you want to delete "${product.name}"?\n\n'
+        'Product Details:\n'
+        '• Name: ${product.name}\n'
+        '• Price: \$${product.price}\n'
+        '• Images: ${product.attachments.length} attachment(s)\n\n'
+        'This action cannot be undone and will permanently remove the product from your catalog.';
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/app_config.dart';
-import '../../../../core/constants/api_constants.dart';
+
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/route/app_routes.dart';
 import '../../domain/entities/product.dart';
@@ -15,6 +15,8 @@ class ProductsGridWithAdd extends StatelessWidget {
   final ScrollController scrollController;
   final bool isLoadingMore;
   final String? categoryId;
+  final VoidCallback? onProductUpdated;
+  final Function(Product)? onProductDeleted;
 
   const ProductsGridWithAdd({
     super.key,
@@ -22,6 +24,8 @@ class ProductsGridWithAdd extends StatelessWidget {
     required this.scrollController,
     this.isLoadingMore = false,
     this.categoryId,
+    this.onProductUpdated,
+    this.onProductDeleted,
   });
 
   @override
@@ -49,7 +53,7 @@ class ProductsGridWithAdd extends StatelessWidget {
               ResponsiveUtils.isTablet(context) ||
                       ResponsiveUtils.isDesktop(context)
                   ? 0.75
-                  : 0.8,
+                  : 0.6,
         ),
         itemBuilder: (context, index) {
           if (isAdmin && index == 0) {
@@ -77,12 +81,40 @@ class ProductsGridWithAdd extends StatelessWidget {
             return SizedBox(
               child: SimpleProductCard(
                 product: product,
-                onTap: () {
-                  context.push(
+                onTap: () async {
+                  final result = await context.push(
                     AppRoutes.product,
                     extra: {'productId': product.id},
                   );
+
+                  if (result == true && context.mounted) {
+                    // Refresh the products list after product details actions
+                    onProductUpdated?.call();
+                  }
                 },
+                onEdit:
+                    isAdmin
+                        ? () async {
+                          final result = await context.push(
+                            AppRoutes.productForm,
+                            extra: {
+                              'product': product,
+                              'categoryId': product.categoryId.toString(),
+                            },
+                          );
+
+                          if (result == true && context.mounted) {
+                            // Refresh the products list after successful edit
+                            onProductUpdated?.call();
+                          }
+                        }
+                        : null,
+                onDelete:
+                    isAdmin
+                        ? () {
+                          onProductDeleted?.call(product);
+                        }
+                        : null,
               ),
             );
           }

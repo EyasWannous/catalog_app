@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:catalog_app/core/error/failure.dart';
 import 'package:catalog_app/core/network/network_info.dart';
-import 'package:catalog_app/features/categroy/domain/entities/pagination.dart';
+import 'package:catalog_app/features/category/domain/entities/pagination.dart';
 import 'package:catalog_app/features/products/data/datasource/product_local_data_source.dart';
 import 'package:catalog_app/features/products/data/datasource/product_remote_data_source.dart';
 import 'package:catalog_app/features/products/data/model/product_model.dart';
@@ -43,6 +43,29 @@ class ProductRepoImpl extends ProductRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, ProductsResponse>> getProductsWithSearch(
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+    String? searchQuery,
+  }) async {
+    try {
+      if (await networkInfo.isConnected) {
+        return await _getAndCacheProductsWithSearch(
+          categoryId,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          searchQuery: searchQuery,
+        );
+      } else {
+        return await _getCachedProducts(categoryId);
+      }
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
   Future<Either<Failure, ProductsResponse>> _getAndCacheProducts(
     String categoryId, {
     int? pageNumber,
@@ -52,6 +75,36 @@ class ProductRepoImpl extends ProductRepository {
       categoryId,
       pageNumber: pageNumber,
       pageSize: pageSize,
+    );
+
+    final productModels =
+        response.products.map((e) => ProductModel.fromEntity(e)).toList();
+
+    // Cache products by category
+    await productLocalDataSource.cacheProductsByCategory(
+      categoryId,
+      productModels,
+    );
+
+    // Also cache individual products for faster detail access
+    for (final productModel in productModels) {
+      await productLocalDataSource.cacheProduct(productModel);
+    }
+
+    return Right(response);
+  }
+
+  Future<Either<Failure, ProductsResponse>> _getAndCacheProductsWithSearch(
+    String categoryId, {
+    int? pageNumber,
+    int? pageSize,
+    String? searchQuery,
+  }) async {
+    final response = await productRemoteDataSource.getProductsWithSearch(
+      categoryId,
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      searchQuery: searchQuery,
     );
 
     final productModels =
@@ -132,6 +185,7 @@ class ProductRepoImpl extends ProductRepository {
     String description,
     String price,
     String categoryId,
+    String syrianPoundPrice,
   ) async {
     try {
       if (await networkInfo.isConnected) {
@@ -141,6 +195,7 @@ class ProductRepoImpl extends ProductRepository {
           description,
           price,
           categoryId,
+          syrianPoundPrice,
         );
 
         // Remove the specific product from cache and invalidate category cache
@@ -185,6 +240,7 @@ class ProductRepoImpl extends ProductRepository {
     String description,
     String price,
     String categoryId,
+    String syrianPoundPrice,
     List<File> images,
   ) async {
     try {
@@ -254,10 +310,8 @@ class ProductRepoImpl extends ProductRepository {
   ) async {
     try {
       if (await networkInfo.isConnected) {
-        // Delete each attachment individually
-        for (final attachmentId in attachmentIds) {
-          await productRemoteDataSource.deleteAttachment(attachmentId);
-        }
+        // Use the bulk delete method from remote data source
+        await productRemoteDataSource.deleteAttachments(attachmentIds);
 
         // Invalidate cache to refresh product data
         await productLocalDataSource.invalidateCache();
@@ -267,6 +321,165 @@ class ProductRepoImpl extends ProductRepository {
       return Left(OfflineFailure());
     } catch (e) {
       return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Attachment>> getAttachment(int attachmentId) async {
+    try {
+      if (await networkInfo.isConnected) {
+        final response = await productRemoteDataSource.getAttachment(
+          attachmentId,
+        );
+        return Right(response);
+      }
+      return Left(OfflineFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Product>> updateProductWithAttachments(
+    int id, {
+    String? name,
+    String? description,
+    String? price,
+    int? categoryId,
+    List<File>? images,
+  }) async {
+    try {
+      if (await networkInfo.isConnected) {
+        final response = await productRemoteDataSource
+            .updateProductWithAttachments(
+              id,
+              name: name,
+              description: description,
+              price: price,
+              categoryId: categoryId,
+              images: images,
+            );
+
+        // Remove the specific product from cache and invalidate category cache
+        await productLocalDataSource.removeCachedProduct(id);
+        await productLocalDataSource.invalidateCache();
+
+        // Cache the updated product
+        await productLocalDataSource.cacheProduct(
+          ProductModel.fromEntity(response),
+        );
+
+        return Right(response);
+      }
+      return Left(OfflineFailure());
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProductsResponse>> getAllProducts({
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    try {
+      if (await networkInfo.isConnected) {
+        return await _getAndCacheAllProducts(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+        );
+      } else {
+        return await _getCachedAllProducts();
+      }
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, ProductsResponse>> getAllProductsWithSearch({
+    int? pageNumber,
+    int? pageSize,
+    String? searchQuery,
+  }) async {
+    try {
+      if (await networkInfo.isConnected) {
+        return await _getAndCacheAllProductsWithSearch(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          searchQuery: searchQuery,
+        );
+      } else {
+        return await _getCachedAllProducts();
+      }
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  Future<Either<Failure, ProductsResponse>> _getAndCacheAllProducts({
+    int? pageNumber,
+    int? pageSize,
+  }) async {
+    final response = await productRemoteDataSource.getAllProducts(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+    );
+
+    final productModels =
+        response.products.map((e) => ProductModel.fromEntity(e)).toList();
+
+    // Cache individual products for faster detail access
+    for (final productModel in productModels) {
+      await productLocalDataSource.cacheProduct(productModel);
+    }
+
+    return Right(response);
+  }
+
+  Future<Either<Failure, ProductsResponse>> _getAndCacheAllProductsWithSearch({
+    int? pageNumber,
+    int? pageSize,
+    String? searchQuery,
+  }) async {
+    final response = await productRemoteDataSource.getAllProductsWithSearch(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      searchQuery: searchQuery,
+    );
+
+    final productModels =
+        response.products.map((e) => ProductModel.fromEntity(e)).toList();
+
+    // Cache individual products for faster detail access
+    for (final productModel in productModels) {
+      await productLocalDataSource.cacheProduct(productModel);
+    }
+
+    return Right(response);
+  }
+
+  Future<Either<Failure, ProductsResponse>> _getCachedAllProducts() async {
+    try {
+      // For now, return empty list since we don't have a method to get all cached products
+      // This is a fallback for offline mode - in practice, users would need to visit
+      // categories first to cache products
+      final response = ProductResponseModel(
+        products: const [],
+        pagination: const Pagination(
+          page: 1,
+          totalCount: 0,
+          resultCount: 0,
+          resultsPerPage: 20,
+        ),
+        isSuccessful: true,
+        responseTime: DateTime.now().toIso8601String(),
+        error: '',
+      );
+
+      return Right(response);
+    } catch (e) {
+      return Left(EmptyCacheFailure());
     }
   }
 }

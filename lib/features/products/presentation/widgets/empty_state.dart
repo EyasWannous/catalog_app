@@ -9,7 +9,11 @@ import '../../../../core/utils/responsive_utils.dart';
 import '../cubit/products_cubit.dart';
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({super.key, required this.categoryTitle, required this.categoryId});
+  const EmptyState({
+    super.key,
+    required this.categoryTitle,
+    required this.categoryId,
+  });
   final String categoryTitle;
   final String categoryId;
 
@@ -17,7 +21,7 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final isAdmin = AppConfig.isAdmin;
 
-     return Center(
+    return Center(
       child: Padding(
         padding: ResponsiveUtils.getResponsivePadding(context),
         child: Column(
@@ -71,7 +75,7 @@ class EmptyState extends StatelessWidget {
                     AppStrings.noProductsFound,
                     style: TextStyle(
                       fontSize:
-                      24 * ResponsiveUtils.getFontSizeMultiplier(context),
+                          24 * ResponsiveUtils.getFontSizeMultiplier(context),
                       fontWeight: FontWeight.w700,
                       color: Colors.black87,
                       letterSpacing: -0.5,
@@ -97,7 +101,7 @@ class EmptyState extends StatelessWidget {
                         : 'No products available at the moment.',
                     style: TextStyle(
                       fontSize:
-                      16 * ResponsiveUtils.getFontSizeMultiplier(context),
+                          16 * ResponsiveUtils.getFontSizeMultiplier(context),
                       color: Colors.grey[600],
                       height: 1.4,
                     ),

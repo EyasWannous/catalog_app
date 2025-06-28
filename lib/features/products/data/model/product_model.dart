@@ -19,9 +19,12 @@ class ProductModel extends Product {
   final String hivePrice;
 
   @HiveField(4)
-  final int hiveCategoryId;
+  final String hiveSyrianPoundPrice;
 
   @HiveField(5)
+  final int hiveCategoryId;
+
+  @HiveField(6)
   final List<AttachmentModel> hiveAttachments;
 
   const ProductModel({
@@ -29,33 +32,39 @@ class ProductModel extends Product {
     required this.hiveName,
     required this.hiveDescription,
     required this.hivePrice,
+    required this.hiveSyrianPoundPrice,
     required this.hiveCategoryId,
     required this.hiveAttachments,
   }) : super(
-          id: hiveId,
-          name: hiveName,
-          description: hiveDescription,
-          price: hivePrice,
-          categoryId: hiveCategoryId,
-          attachments: hiveAttachments,
-        );
+         id: hiveId,
+         name: hiveName,
+         description: hiveDescription,
+         price: hivePrice,
+         syrianPoundPrice: hiveSyrianPoundPrice,
+         categoryId: hiveCategoryId,
+         attachments: hiveAttachments,
+       );
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     final attachmentsJson = json['attachments'] as List<dynamic>? ?? [];
 
     return ProductModel(
-      hiveId: json['id'] is int
-          ? json['id']
-          : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      hiveId:
+          json['id'] is int
+              ? json['id']
+              : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       hiveName: json['name']?.toString() ?? '',
       hiveDescription: json['description']?.toString() ?? '',
       hivePrice: json['price']?.toString() ?? '0',
-      hiveCategoryId: json['categoryId'] is int
-          ? json['categoryId']
-          : int.tryParse(json['categoryId']?.toString() ?? '1') ?? 1,
-      hiveAttachments: attachmentsJson
-          .map((e) => AttachmentModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      hiveSyrianPoundPrice: json['syrianPoundPrice']?.toString() ?? '0',
+      hiveCategoryId:
+          json['categoryId'] is int
+              ? json['categoryId']
+              : int.tryParse(json['categoryId']?.toString() ?? '1') ?? 1,
+      hiveAttachments:
+          attachmentsJson
+              .map((e) => AttachmentModel.fromJson(e as Map<String, dynamic>))
+              .toList(),
     );
   }
 
@@ -65,21 +74,24 @@ class ProductModel extends Product {
       hiveName: entity.name,
       hiveDescription: entity.description,
       hivePrice: entity.price,
+      hiveSyrianPoundPrice: entity.syrianPoundPrice,
       hiveCategoryId: entity.categoryId,
-      hiveAttachments: entity.attachments
-          .map((x) => x is AttachmentModel
-              ? x
-              : AttachmentModel.fromEntity(x))
-          .toList(),
+      hiveAttachments:
+          entity.attachments
+              .map(
+                (x) => x is AttachmentModel ? x : AttachmentModel.fromEntity(x),
+              )
+              .toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': hiveId,
-        'name': hiveName,
-        'description': hiveDescription,
-        'price': hivePrice,
-        'categoryId': hiveCategoryId,
-        'attachments': hiveAttachments.map((e) => e.toJson()).toList(),
-      };
+    'id': hiveId,
+    'name': hiveName,
+    'description': hiveDescription,
+    'price': hivePrice,
+    'syrianPoundPrice': hiveSyrianPoundPrice,
+    'categoryId': hiveCategoryId,
+    'attachments': hiveAttachments.map((e) => e.toJson()).toList(),
+  };
 }

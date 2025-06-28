@@ -21,6 +21,7 @@ class CreateProductWithImagesUseCase {
       description,
       price,
       categoryId,
+      '0', // Default Syrian price, will be calculated by API
       images,
     );
   }

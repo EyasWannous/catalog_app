@@ -6,9 +6,11 @@ import '../../../../core/config/app_config.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/route/app_routes.dart';
 import '../../../../core/utils/responsive_utils.dart';
+import '../../../../core/shared_widgets/confirmation_dialog.dart';
 import '../../domain/entities/product.dart';
+import '../cubit/productcubit/product_cubit.dart';
 import '../cubit/products_cubit.dart';
-import 'admin_menu.dart';
+
 import 'animated_navigation_button.dart';
 
 class ProductImageCarousel extends StatefulWidget {
@@ -70,13 +72,8 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
         position: widget.slideAnimation,
         child: Container(
           width: double.infinity,
-          height:
-              ResponsiveUtils.isMobile(context)
-                  ? 380
-                  : ResponsiveUtils.isTablet(context)
-                  ? 450
-                  : 500,
-          decoration: const BoxDecoration(color: Colors.white),
+          // Remove fixed height - let parent container control the height
+          decoration: const BoxDecoration(color: Colors.transparent),
           child: Stack(
             children: [
               Positioned.fill(
@@ -172,36 +169,174 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
                   ),
                 ),
 
-              // Admin Menu for product actions
+              // Enhanced Admin Menu for product actions
               if (AppConfig.isAdmin && widget.product != null)
                 Positioned(
-                  top: ResponsiveUtils.getResponsiveSpacing(context, 8),
-                  right: ResponsiveUtils.getResponsiveSpacing(context, 8),
+                  top: ResponsiveUtils.getResponsiveSpacing(context, 16),
+                  right: ResponsiveUtils.getResponsiveSpacing(context, 16),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.95),
+                          Colors.white.withOpacity(0.85),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       borderRadius: BorderRadius.circular(
-                        ResponsiveUtils.getResponsiveBorderRadius(context, 8),
+                        ResponsiveUtils.getResponsiveBorderRadius(context, 16),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: ResponsiveUtils.getResponsiveSpacing(
+                            context,
+                            12,
+                          ),
+                          offset: const Offset(0, 4),
                         ),
                       ],
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 1,
+                      ),
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () {
-                        context.push(
-                          AppRoutes.productForm,
-                          extra: {
-                            'product': widget.product,
-                            'categoryId': widget.product!.categoryId.toString(),
-                          },
-                        );
-                      },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Edit button
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveUtils.getResponsiveBorderRadius(
+                                context,
+                                12,
+                              ),
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: Container(
+                              padding: EdgeInsets.all(
+                                ResponsiveUtils.getResponsiveSpacing(
+                                  context,
+                                  8,
+                                ),
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(0xFF3B82F6).withOpacity(0.1),
+                                    const Color(0xFF3B82F6).withOpacity(0.05),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveUtils.getResponsiveBorderRadius(
+                                    context,
+                                    8,
+                                  ),
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.edit_rounded,
+                                color: const Color(0xFF3B82F6),
+                                size: ResponsiveUtils.getResponsiveIconSize(
+                                  context,
+                                  20,
+                                ),
+                              ),
+                            ),
+                            onPressed: () async {
+                              final result = await context.push(
+                                AppRoutes.productForm,
+                                extra: {
+                                  'product': widget.product,
+                                  'categoryId':
+                                      widget.product!.categoryId.toString(),
+                                },
+                              );
+
+                              if (result == true && context.mounted) {
+                                // Navigate back to refresh the previous screen
+                                context.pop(true);
+                              }
+                            },
+                            tooltip: 'Edit Product',
+                          ),
+                        ),
+
+                        // Divider
+                        Container(
+                          width: 1,
+                          height: ResponsiveUtils.getResponsiveSpacing(
+                            context,
+                            24,
+                          ),
+                          color: Colors.grey.withOpacity(0.3),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: ResponsiveUtils.getResponsiveSpacing(
+                              context,
+                              4,
+                            ),
+                          ),
+                        ),
+
+                        // Delete button
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              ResponsiveUtils.getResponsiveBorderRadius(
+                                context,
+                                12,
+                              ),
+                            ),
+                          ),
+                          child: Builder(
+                            builder:
+                                (context) => IconButton(
+                                  icon: Container(
+                                    padding: EdgeInsets.all(
+                                      ResponsiveUtils.getResponsiveSpacing(
+                                        context,
+                                        8,
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          const Color(
+                                            0xFFEF4444,
+                                          ).withOpacity(0.1),
+                                          const Color(
+                                            0xFFEF4444,
+                                          ).withOpacity(0.05),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(
+                                        ResponsiveUtils.getResponsiveBorderRadius(
+                                          context,
+                                          8,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.delete_rounded,
+                                      color: const Color(0xFFEF4444),
+                                      size:
+                                          ResponsiveUtils.getResponsiveIconSize(
+                                            context,
+                                            20,
+                                          ),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    _showDeleteConfirmationDialog(context);
+                                  },
+                                  tooltip: 'Delete Product',
+                                ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -288,61 +423,6 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
       ],
     );
   }
-
-  // Widget _buildAdminControls(BuildContext context) {
-  //   return TweenAnimationBuilder<double>(
-  //     tween: Tween(begin: 0.0, end: 1.0),
-  //     duration: const Duration(milliseconds: 500),
-  //     builder: (context, value, child) {
-  //       return Transform.scale(
-  //         scale: value,
-  //         child: Opacity(
-  //           opacity: value,
-  //           child: Container(
-  //             padding: EdgeInsets.all(
-  //               ResponsiveUtils.getResponsiveSpacing(context, 4),
-  //             ),
-  //             decoration: BoxDecoration(
-  //               color: Colors.black.withValues(alpha: 0.5),
-  //               borderRadius: BorderRadius.circular(20),
-  //             ),
-  //             child: Row(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 IconButton(
-  //                   icon: Icon(
-  //                     Icons.delete,
-  //                     size: ResponsiveUtils.getResponsiveIconSize(context, 24),
-  //                     color: Colors.white,
-  //                   ),
-  //                   onPressed: () {
-  //                     if (widget.onImageDeleted != null) {
-  //                       widget.onImageDeleted!(currentIndex);
-  //                     }
-  //                   },
-  //                 ),
-  //                 if (widget.images.length > 1)
-  //                   IconButton(
-  //                     icon: Icon(
-  //                       Icons.swap_horiz,
-  //                       size: ResponsiveUtils.getResponsiveIconSize(
-  //                         context,
-  //                         24,
-  //                       ),
-  //                       color: Colors.white,
-  //                     ),
-  //                     onPressed: () {
-  //                       // Implement image reordering if needed
-  //                     },
-  //                   ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   Widget _buildNavigationDots(BuildContext context) {
     return TweenAnimationBuilder<double>(
@@ -464,5 +544,39 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
         );
       },
     );
+  }
+
+  void _deleteProduct(BuildContext context) {
+    // Simply call the delete method - the ProductDetailsScreen will handle the result
+    context.read<ProductCubit>().deleteProduct(widget.product!.id);
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    // Use the enhanced ConfirmationDialog for better tablet experience
+    ConfirmationDialog.show(
+      context,
+      title: 'Delete Product',
+      message: _buildDeleteMessage(),
+      confirmText: 'Delete Product',
+      cancelText: 'Keep Product',
+      confirmColor: const Color(0xFFEF4444),
+      icon: Icons.delete_forever_rounded,
+      iconColor: const Color(0xFFEF4444),
+      onConfirm: () {
+        if (widget.product != null) {
+          _deleteProduct(context);
+        }
+      },
+    );
+  }
+
+  String _buildDeleteMessage() {
+    final product = widget.product!;
+    return 'Are you sure you want to delete "${product.name}"?\n\n'
+        'Product Details:\n'
+        '• Name: ${product.name}\n'
+        '• Price: \$${product.price}\n'
+        '• Images: ${product.attachments.length} attachment(s)\n\n'
+        'This action cannot be undone and will permanently remove the product from your catalog.';
   }
 }

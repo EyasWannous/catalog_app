@@ -7,3 +7,4 @@ export 'products_grid_with_add.dart';
 export 'simple_product_card.dart';
 export 'add_product_card.dart';
 export 'paginated_products_list.dart';
+export 'all_products_list.dart';

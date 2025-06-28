@@ -1,4 +1,4 @@
-import 'package:catalog_app/features/categroy/data/models/pagination_model.dart';
+import 'package:catalog_app/features/category/data/models/pagination_model.dart';
 import 'package:catalog_app/features/products/data/model/product_model.dart';
 import 'package:catalog_app/features/products/domain/entities/products_response.dart';
 

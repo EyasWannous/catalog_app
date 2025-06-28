@@ -1,26 +1,33 @@
 import 'dart:io';
+
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meta/meta.dart';
+
 import 'package:catalog_app/features/products/domain/entities/attachment.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
 import 'package:catalog_app/features/products/domain/usecase/create_attachment_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/delete_attachment_use_case.dart';
-
+import 'package:catalog_app/features/products/domain/usecase/delete_product_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/get_single_attachment_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_single_product_use_case.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
-import 'package:bloc/bloc.dart';
 
 part 'product_state.dart';
 
 class ProductCubit extends Cubit<ProductState> {
   final GetSingleProductUseCase getSingleProductUseCase;
+  final GetSingleAttachmentUseCase getSingleAttachmentUseCase;
   final CreateAttachmentUseCase createAttachmentUseCase;
   final DeleteAttachmentUseCase deleteAttachmentUseCase;
+  final DeleteProductUseCase deleteProductUseCase;
 
   ProductCubit(
     this.getSingleProductUseCase,
+    this.getSingleAttachmentUseCase,
     this.createAttachmentUseCase,
     this.deleteAttachmentUseCase,
+    this.deleteProductUseCase,
   ) : super(ProductInitial());
 
   int currentIndex = 0;
@@ -28,6 +35,7 @@ class ProductCubit extends Cubit<ProductState> {
   Future<void> getProduct(int productId) async {
     emit(ProductLoading());
     try {
+
       final result = await getSingleProductUseCase(productId);
       result.fold(
         (failure) => emit(ProductError("Failed to load product: $failure")),
@@ -35,6 +43,20 @@ class ProductCubit extends Cubit<ProductState> {
       );
     } catch (e) {
       emit(ProductError("Exception: $e"));
+    }
+  }
+
+  Future<void> getAttachment(int attachmentId) async {
+    emit(AttachmentLoading());
+    try {
+      final result = await getSingleAttachmentUseCase(attachmentId);
+      result.fold(
+        (failure) =>
+            emit(AttachmentError("Failed to load attachment: $failure")),
+        (attachment) => emit(AttachmentLoaded(attachment)),
+      );
+    } catch (e) {
+      emit(AttachmentError("Exception: $e"));
     }
   }
 
@@ -93,6 +115,26 @@ class ProductCubit extends Cubit<ProductState> {
     } catch (e) {
       emit(ProductError('Error adding attachment: ${e.toString()}'));
       _reloadCurrentProduct();
+    }
+  }
+
+  // Method for deleting the entire product
+  Future<void> deleteProduct(int productId) async {
+    emit(SingleProductDeleting());
+
+    try {
+      final result = await deleteProductUseCase(productId);
+
+      result.fold(
+        (failure) {
+          emit(ProductError('Failed to delete product: ${failure.toString()}'));
+        },
+        (_) {
+          emit(SingleProductDeleted(productId: productId));
+        },
+      );
+    } catch (e) {
+      emit(ProductError('Error deleting product: ${e.toString()}'));
     }
   }
 

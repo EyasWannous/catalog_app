@@ -1,25 +1,31 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:meta/meta.dart';
+
+import 'package:catalog_app/core/utils/logger.dart';
 import 'package:catalog_app/features/products/domain/entities/attachment.dart';
 import 'package:catalog_app/features/products/domain/entities/product.dart';
-import 'package:catalog_app/features/products/domain/usecase/create_product_with_images_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/create_attachment_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/create_product_with_images_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/delete_attachment_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/delete_product_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/get_products_use_case.dart';
+import 'package:catalog_app/features/products/domain/usecase/get_products_with_search_use_case.dart';
 import 'package:catalog_app/features/products/domain/usecase/update_product_use_case.dart';
-import 'package:meta/meta.dart';
+import 'package:catalog_app/features/products/domain/usecase/update_product_with_attachments_use_case.dart';
 
 part 'products_state.dart';
 
 class ProductsCubit extends Cubit<ProductsState> {
   final GetProductsUseCase getProductsUseCase;
+  final GetProductsWithSearchUseCase getProductsWithSearchUseCase;
   final CreateProductWithImagesUseCase createProductWithImagesUseCase;
   final CreateAttachmentUseCase createAttachmentUseCase;
   final DeleteAttachmentUseCase deleteAttachmentUseCase;
   final DeleteAttachmentsUseCase deleteAttachmentsUseCase;
   final UpdateProductUseCase updateProductUseCase;
+  final UpdateProductWithAttachmentsUseCase updateProductWithAttachmentsUseCase;
   final DeleteProductUseCase deleteProductUseCase;
 
   int _currentPage = 1;
@@ -28,21 +34,39 @@ class ProductsCubit extends Cubit<ProductsState> {
   bool _hasMore = true;
   final List<Product> _products = [];
   String? _currentCategoryId;
+  String? _currentSearchQuery;
 
   ProductsCubit(
     this.getProductsUseCase,
+    this.getProductsWithSearchUseCase,
     this.createProductWithImagesUseCase,
     this.createAttachmentUseCase,
     this.deleteAttachmentUseCase,
     this.deleteAttachmentsUseCase,
     this.updateProductUseCase,
+    this.updateProductWithAttachmentsUseCase,
     this.deleteProductUseCase,
   ) : super(ProductsInitial());
 
   Future<void> getProducts(
     String categoryId, {
     bool isInitialLoad = false,
+    String? searchQuery,
   }) async {
+    // ✅ FIX: Validate categoryId
+    AppLogger.info(
+      '🛍️ ProductsCubit.getProducts called with categoryId: "$categoryId"',
+    );
+    if (categoryId.isEmpty) {
+      AppLogger.error('❌ Invalid category ID: categoryId cannot be empty');
+      emit(
+        ProductsError(
+          message: "Invalid category ID: categoryId cannot be empty",
+        ),
+      );
+      return;
+    }
+
     if (_isFetching) {
       return;
     }
@@ -53,10 +77,14 @@ class ProductsCubit extends Cubit<ProductsState> {
 
     _isFetching = true;
 
-    if (isInitialLoad || _currentCategoryId != categoryId) {
+    // Reset pagination if category or search query changed
+    if (isInitialLoad ||
+        _currentCategoryId != categoryId ||
+        _currentSearchQuery != searchQuery) {
       _currentPage = 1;
       _products.clear();
       _currentCategoryId = categoryId;
+      _currentSearchQuery = searchQuery;
       emit(ProductsLoading());
     } else {
       emit(
@@ -69,11 +97,21 @@ class ProductsCubit extends Cubit<ProductsState> {
     }
 
     try {
-      final result = await getProductsUseCase(
-        categoryId,
-        pageNumber: _currentPage,
-        pageSize: _pageSize,
-      );
+      // Use search use case if search query is provided, otherwise use regular use case
+      final result =
+          searchQuery != null && searchQuery.isNotEmpty
+              ? await getProductsWithSearchUseCase(
+                categoryId,
+                pageNumber: _currentPage,
+                pageSize: _pageSize,
+                searchQuery: searchQuery,
+              )
+              : await getProductsUseCase(
+                categoryId,
+                pageNumber: _currentPage,
+                pageSize: _pageSize,
+              );
+
       result.fold(
         (failure) => emit(ProductsError(message: "Failed to load: $failure")),
         (response) {
@@ -98,6 +136,19 @@ class ProductsCubit extends Cubit<ProductsState> {
     } finally {
       _isFetching = false;
     }
+  }
+
+  // New method for searching products
+  Future<void> searchProducts(
+    String categoryId,
+    String searchQuery, {
+    bool isInitialLoad = true,
+  }) async {
+    await getProducts(
+      categoryId,
+      isInitialLoad: isInitialLoad,
+      searchQuery: searchQuery,
+    );
   }
 
   // New method for creating products with images
@@ -132,6 +183,7 @@ class ProductsCubit extends Cubit<ProductsState> {
     String description,
     String price,
     String categoryId,
+    String syrianPoundPrice,
   ) async {
     emit(ProductFormSubmitting());
     final result = await updateProductUseCase(
@@ -140,6 +192,7 @@ class ProductsCubit extends Cubit<ProductsState> {
       description,
       price,
       categoryId,
+      syrianPoundPrice,
     );
     result.fold(
       (failure) => emit(ProductFormError(message: failure.toString())),
@@ -158,56 +211,27 @@ class ProductsCubit extends Cubit<ProductsState> {
 
   Future<void> updateProductWithImages({
     required int id,
-    required String name,
-    required String description,
-    required String price,
-    required String categoryId,
-    required List<File> images,
+    String? name,
+    String? description,
+    String? price,
+    int? categoryId,
+    List<File>? images,
   }) async {
     emit(ProductFormSubmitting());
 
     try {
-      // 1. Update product data only (PUT /products)
-      final updateResult = await updateProductUseCase(
+      final result = await updateProductWithAttachmentsUseCase(
         id,
-        name,
-        description,
-        price,
-        categoryId,
+        name: name,
+        description: description,
+        price: price,
+        categoryId: categoryId,
+        images: images,
       );
 
-      updateResult.fold(
+      result.fold(
         (failure) => emit(ProductFormError(message: failure.toString())),
-        (product) async {
-          // 2. Add new images as attachments if any (POST /attachments)
-          if (images.isNotEmpty) {
-            try {
-              for (final image in images) {
-                final attachmentResult = await createAttachmentUseCase(
-                  id,
-                  image,
-                );
-                attachmentResult.fold(
-                  (failure) => emit(
-                    ProductFormError(
-                      message: 'Failed to add image: ${failure.toString()}',
-                    ),
-                  ),
-                  (_) {}, // Continue with next image
-                );
-              }
-            } catch (e) {
-              emit(
-                ProductFormError(
-                  message: 'Failed to add images: ${e.toString()}',
-                ),
-              );
-              return;
-            }
-          }
-
-          emit(ProductFormSuccess(product: product));
-        },
+        (product) => emit(ProductFormSuccess(product: product)),
       );
     } catch (e) {
       emit(ProductFormError(message: e.toString()));

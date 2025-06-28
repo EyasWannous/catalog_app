@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+
 import '../../../../core/config/app_config.dart';
 import '../../../../core/constants/api_constants.dart';
-import '../../../../core/route/app_routes.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../domain/entities/product.dart';
-import '../cubit/products_cubit.dart';
 import 'admin_menu.dart';
 
 class SimpleProductCard extends StatelessWidget {
@@ -31,10 +28,9 @@ class SimpleProductCard extends StatelessWidget {
     final normalizedPath = imagePath.replaceAll('\\', '/');
 
     // Remove leading slash if present to avoid double slashes
-    final cleanPath =
-        normalizedPath.startsWith('/')
-            ? normalizedPath.substring(1)
-            : normalizedPath;
+    final cleanPath = normalizedPath.startsWith('/')
+        ? normalizedPath.substring(1)
+        : normalizedPath;
 
     return '${ApiConstants.baseImageUrl}$cleanPath';
   }
@@ -69,9 +65,9 @@ class SimpleProductCard extends StatelessWidget {
                 Expanded(
                   flex:
                       ResponsiveUtils.isTablet(context) ||
-                              ResponsiveUtils.isDesktop(context)
-                          ? 6
-                          : 5,
+                          ResponsiveUtils.isDesktop(context)
+                      ? 6
+                      : 5,
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -106,24 +102,20 @@ class SimpleProductCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      child:
-                          product.attachments.isNotEmpty
-                              ? Image.network(
-                                _getImageUrl(product.attachments.first.path),
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return _buildPlaceholderImage(context);
-                                },
-                                loadingBuilder: (
-                                  context,
-                                  child,
-                                  loadingProgress,
-                                ) {
-                                  if (loadingProgress == null) return child;
-                                  return _buildLoadingImage(context);
-                                },
-                              )
-                              : _buildPlaceholderImage(context),
+                      child: product.attachments.isNotEmpty
+                          ? Image.network(
+                              _getImageUrl(product.attachments.first.path),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return _buildPlaceholderImage(context);
+                              },
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return _buildLoadingImage(context);
+                                  },
+                            )
+                          : _buildPlaceholderImage(context),
                     ),
                   ),
                 ),
@@ -131,9 +123,9 @@ class SimpleProductCard extends StatelessWidget {
                 Expanded(
                   flex:
                       ResponsiveUtils.isTablet(context) ||
-                              ResponsiveUtils.isDesktop(context)
-                          ? 3
-                          : 3,
+                          ResponsiveUtils.isDesktop(context)
+                      ? 3
+                      : 3,
                   child: Padding(
                     padding: EdgeInsets.all(
                       ResponsiveUtils.getResponsiveSpacing(context, 12),
@@ -155,9 +147,9 @@ class SimpleProductCard extends StatelessWidget {
                           ),
                           maxLines:
                               ResponsiveUtils.isTablet(context) ||
-                                      ResponsiveUtils.isDesktop(context)
-                                  ? 3
-                                  : 2,
+                                  ResponsiveUtils.isDesktop(context)
+                              ? 3
+                              : 2,
                           overflow: TextOverflow.ellipsis,
                         ),
 
@@ -206,7 +198,11 @@ class SimpleProductCard extends StatelessWidget {
               Positioned(
                 top: ResponsiveUtils.getResponsiveSpacing(context, 8),
                 right: ResponsiveUtils.getResponsiveSpacing(context, 8),
-                child: AdminMenu(product: product),
+                child: AdminMenu(
+                  product: product,
+                  onEdit: onEdit,
+                  onDelete: onDelete,
+                ),
               ),
           ],
         ),
